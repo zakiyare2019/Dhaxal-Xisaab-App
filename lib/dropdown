@@ -1,0 +1,24 @@
+import 'dart:async';
+import 'package:mysql1/mysql1.dart';
+
+Future<void> main() async {
+  final conn = await MySqlConnection.connect(
+    ConnectionSettings(
+      host: 'localhost',
+      port: 3306,
+      user: 'your_username',
+      password: 'your_password',
+      db: 'your_database',
+    ),
+  );
+
+  final results = await conn.query('SELECT * FROM your_table');
+
+  final items = results.map((row) => row['name'] as String).toList();
+
+  await conn.close();
+
+  String dropdownValue = items[0];
+
+
+}
