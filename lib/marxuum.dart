@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 // import 'package:mysql1/mysql1.dart';
 import 'package:http/http.dart' as http;
-import 'home.dart';
+import 'insertdecease.dart';
 
 class design extends StatefulWidget {
   @override
@@ -20,10 +20,12 @@ class _designState extends State<design> {
   String? _name = "";
   num lacagta = 0;
   String? deen;
-  var hantiVariable = TextEditingController();
+  final magacavariable = TextEditingController();
+  final hantiVariable = TextEditingController();
   final deemoVariable = TextEditingController();
   final dardaaranVariable = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  var selecteddate = null;
   List lst = List.empty();
 
   Future getData() async {
@@ -67,6 +69,7 @@ class _designState extends State<design> {
                   height: 8,
                 ),
                 TextFormField(
+                  controller: magacavariable,
                   decoration: InputDecoration(
                     labelText: 'Magaca Marxuumka',
                     border: OutlineInputBorder(),
@@ -144,6 +147,7 @@ class _designState extends State<design> {
                     if (pickedDate != null) {
                       setState(() {
                         _selectedDate = pickedDate;
+                        selecteddate = _selectedDate;
                       });
                     }
                   },
@@ -262,22 +266,30 @@ class _designState extends State<design> {
               width: double.infinity,
               height: 43,
               child: ElevatedButton(
-                  onPressed: () => {
-                        // if (_formKey.currentState!.validate())
-                        //   {
-                        //     // If the form is valid, display a snackbar. In the real world,
-                        //     // you'd often call a server or save the information in a database.
-                        //     ScaffoldMessenger.of(context).showSnackBar(
-                        //       const SnackBar(content: Text('Processing Data')),
-                        //     ),
-                        // }
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => MaterialApp(
-                                  debugShowCheckedModeBanner: false,
-                                  home: Scaffold(
-                                      body: Container(child: home_page())),
-                                )))
-                      },
+                  onPressed: () async {
+                    final data = deceaseInserter(
+                        name: magacavariable.text,
+                        gender: _gender.toString(),
+                        dateofdeath: selecteddate.toString(),
+                        hanti: hantiVariable.text,
+                        deen: deemoVariable.text,
+                        dardaaran: dardaaranVariable.text);
+                    final response = await data.insertHeirs2();
+                    // if (_formKey.currentState!.validate())
+                    //   {
+                    //     // If the form is valid, display a snackbar. In the real world,
+                    //     // you'd often call a server or save the information in a database.
+                    //     ScaffoldMessenger.of(context).showSnackBar(
+                    //       const SnackBar(content: Text('Processing Data')),
+                    //     ),
+                    // }
+                    // Navigator.of(context).push(MaterialPageRoute(
+                    //     builder: (context) => MaterialApp(
+                    //           debugShowCheckedModeBanner: false,
+                    //           home: Scaffold(
+                    //               body: Container(child: home_page())),
+                    //         )))
+                  },
                   child: Text(
                     "Keedi",
                     style: TextStyle(

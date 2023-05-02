@@ -50,44 +50,7 @@ class _dhaxlayaalState extends State<dhaxlayaal> {
 
   @override
   Widget build(BuildContext context) {
-    // void insertHeirs() {
-    //   String _wiil = wiil.text;
-    //   String _gabar = gabar.text;
-    //   String _aabo = aabo.text;
-    //   String _hooyo = hooyo.text;
-    //   String _aboowe = aboowe.text;
-    //   String _abaayo = abaayo.text;
-    //   String _wiilkaWiilkiisa = wiilkaWalaal.text;
-    //   String _adeer = adeer.text;
-    //   String _xaasle = xaasle.text;
-    //   String _marwo = marwo.text;
-    //   final headers = {'Content-Type': 'application/json'};
-
-    //   http.post(
-    //       Uri.parse("http://192.168.32.2/inheritance_api/newdhaxlayaal.php"),
-    //       // headers: headers,
-    //       body: {
-    //         "deceased_id": marxuumID,
-    //         "wiilal": _wiil,
-    //         "gabdho": _gabar,
-    //         "aabo": _aabo,
-    //         "hooyo": _hooyo,
-    //         "aboowe": _aboowe,
-    //         "abaayo": _abaayo,
-    //         "wiilka_wiilkiisa": _wiilkaWiilkiisa,
-    //         "adeer": adeer,
-    //         "marwo": _marwo,
-    //         "xaasle": _xaasle,
-    //     }).then((response) {
-    //   var data = jsonDecode(response.body);
-    // });
-    // }
-
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Dhaxlayaal"),
-        centerTitle: true,
-      ),
       body: Container(
           margin: EdgeInsets.only(top: 5, left: 20, right: 20),
           child: ListView(
@@ -422,18 +385,8 @@ class _dhaxlayaalState extends State<dhaxlayaal> {
                           xaasle: xaasle.text,
                           marwo: marwo.text,
                           adeer: adeer.text);
-                     
+
                       final response = await data.insertHeirs2();
-                      // print('http.Response = '+response);
- 
-                      // Navigator.of(context).push(
-                      //   MaterialPageRoute(
-                      //     builder: (context) => MaterialApp(
-                      //       debugShowCheckedModeBanner: false,
-                      //       home: Scaffold(body: Container(child: home_page())),
-                      //     ),
-                      //   ),
-                      // );
                     },
                     child: Text(
                       'Keedi',

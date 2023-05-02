@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 // import 'package:mysql1/mysql1.dart';
 import 'package:http/http.dart' as http;
 import 'home.dart';
-import 'loginuser.dart';
 
 class MyLogin extends StatefulWidget {
   const MyLogin({Key? key}) : super(key: key);
@@ -17,6 +16,24 @@ class _MyLoginState extends State<MyLogin> {
   final _formKey = GlobalKey<FormState>();
   final username = TextEditingController();
   final password = TextEditingController();
+  var jawaab = [];
+  Future<void> makelogin() async {
+    final _url = Uri.parse("http://192.168.32.2/inheritance_api/users.php");
+
+    final _result = await http.post(_url, body: {
+      "username": username.text,
+      "password": password.text,
+    }).catchError((e) {
+      print('Cach Error: ' + e.toString());
+    });
+    // debugPrint(_result.statusCode.toString());
+    var result = jsonDecode(_result.body);
+    jawaab = result;
+    jawaab.removeAt(0);
+
+    // print('==================' + lst.last.toString());
+  }
+
   List lst = List.empty();
 
   Future getData() async {
@@ -133,18 +150,42 @@ class _MyLoginState extends State<MyLogin> {
                                 child: IconButton(
                                     color: Colors.blue,
                                     onPressed: () async {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (context) => MaterialApp(
-                                            debugShowCheckedModeBanner: false,
-                                            home: Scaffold(
-                                                // backgroundColor: AppColors.mainColor,
-                                                body: Container(
-                                                    // margin: EdgeInsets.only(top: 50),
-                                                    child: home_page())),
+                                      makelogin();
+
+                                      if (jawaab.isEmpty) {
+                                        // print("waa faaruq" + jawaab.toString());"
+                                        final snack = SnackBar(
+                                            content: Text(
+                                                'User Name or Password are in correct'));
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(snack);
+                                      } else {
+                                        
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (context) => MaterialApp(
+                                              debugShowCheckedModeBanner: false,
+                                              home: Scaffold(
+                                                  // backgroundColor: AppColors.mainColor,
+                                                  body: Container(
+                                                      // margin: EdgeInsets.only(top: 50),
+                                                      child: home_page())),
+                                            ),
                                           ),
-                                        ),
-                                      );
+                                        );
+                                      }
+                                      // Navigator.of(context).push(
+                                      //   MaterialPageRoute(
+                                      //     builder: (context) => MaterialApp(
+                                      //       debugShowCheckedModeBanner: false,
+                                      //       home: Scaffold(
+                                      //           // backgroundColor: AppColors.mainColor,
+                                      //           body: Container(
+                                      //               // margin: EdgeInsets.only(top: 50),
+                                      //               child: home_page())),
+                                      //     ),
+                                      //   ),
+                                      // );
                                       // final data = HeirsInserter(
                                       //     username: username.text,
                                       //     password: password.text);
