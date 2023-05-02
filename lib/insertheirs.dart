@@ -32,8 +32,7 @@ class HeirsInserter {
   Future<void> insertHeirs2() async {
     final _url =
         Uri.parse("http://192.168.32.2/inheritance_api/newdhaxlayaal.php");
-
-    final _result = await http.post(_url, body: {
+    final mp = {
       "deceased_id": marxuumID,
       "wiilal": wiil,
       "gabdho": gabar,
@@ -44,11 +43,17 @@ class HeirsInserter {
       "wiilka_wiilkiisa": wiilkaWalaal,
       "adeer": adeer,
       "marwo": marwo,
-      "xaasle": xaasle,
-    }).then((response) {
-      print(response);
+      "xaasle": xaasle
+    };
+    // print(mp);
+    final _result = await http.post(_url, body: mp).then((response) {
+      // print("------------------ ==" + response.body);
+      //
       var data = jsonDecode(response.body);
-      print(data);
+      // return data;
+      // print(data);
+    }).catchError((e) {
+      print(e.toString());
     });
   }
 }

@@ -1,54 +1,53 @@
-// import 'dart:convert';
+// import 'package:dhaxalxisaab/dhaxlayaal.dart';
+// import 'package:flutter/material.dart';
+// import 'heirsTable.dart';
+// import 'insertHeirs.dart';
 
-// import 'package:http/http.dart' as http;
+// class MyApp extends StatefulWidget {
+//   @override
+//   _MyAppState createState() => _MyAppState();
+// }
 
-// class HeirsInserter {
-//   final String marxuumID;
-//   final String wiil;
-//   final String gabar;
-//   final String aabo;
-//   final String hooyo;
-//   final String aboowe;
-//   final String abaayo;
-//   final String wiilkaWalaal;
-//   final String adeer;
-//   final String xaasle;
-//   final String marwo;
+// class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
+//   late TabController _tabController;
 
-//   HeirsInserter({
-//     required this.marxuumID,
-//     required this.wiil,
-//     required this.gabar,
-//     required this.aabo,
-//     required this.hooyo,
-//     required this.aboowe,
-//     required this.abaayo,
-//     required this.wiilkaWalaal,
-//     required this.adeer,
-//     required this.xaasle,
-//     required this.marwo,
-//   });
+//   @override
+//   void initState() {
+//     super.initState();
+//     _tabController = TabController(length: 2, vsync: this);
+//   }
 
-//   Future<void> insertHeirs2() async {
-//     final _url =
-//         Uri.parse("http://192.168.32.2/inheritance_api/newdhaxlayaal.php");
+//   @override
+//   void dispose() {
+//     _tabController.dispose();
+//     super.dispose();
+//   }
 
-//     final _result = await http.post(_url, body: {
-//       "deceased_id": marxuumID,
-//       "wiilal": wiil,
-//       "gabdho": gabar,
-//       "aabo": aabo,
-//       "hooyo": hooyo,
-//       "aboowe": aboowe,
-//       "abaayo": abaayo,
-//       "wiilka_wiilkiisa": wiilkaWalaal,
-//       "adeer": adeer,
-//       "marwo": marwo,
-//       "xaasle": xaasle,
-//     }).then((response) {
-//       print(response);
-//       var data = jsonDecode(response.body);
-//       print(data);
-//     });
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       debugShowCheckedModeBanner: false,
+//       home: Scaffold(
+//         appBar: AppBar(
+//           title: Text('Dhaxlayaal'),
+//           centerTitle: true,
+//           bottom: TabBar(
+//             controller: _tabController,
+//             tabs: [
+//               Tab(
+//                 text: 'New Record',
+//               ),
+//               Tab(
+//                 text: 'show Records',
+//               ),
+//             ],
+//           ),
+//         ),
+//         body: TabBarView(
+//           controller: _tabController,
+//           children: [dhaxlayaal(), MyTable()],
+//         ),
+//       ),
+//     );
 //   }
 // }
