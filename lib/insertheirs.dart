@@ -10,7 +10,7 @@ class HeirsInserter {
   final String hooyo;
   final String aboowe;
   final String abaayo;
-  final String wiilkaWalaal;
+
   final String adeer;
   final String xaasle;
   final String marwo;
@@ -23,12 +23,11 @@ class HeirsInserter {
     required this.hooyo,
     required this.aboowe,
     required this.abaayo,
-    required this.wiilkaWalaal,
     required this.adeer,
     required this.xaasle,
     required this.marwo,
   });
-
+  late var h;
   Future<void> insertHeirs2() async {
     final _url =
         Uri.parse("http://192.168.32.2/inheritance_api/newdhaxlayaal.php");
@@ -40,11 +39,11 @@ class HeirsInserter {
       "hooyo": hooyo,
       "aboowe": aboowe,
       "abaayo": abaayo,
-      "wiilka_wiilkiisa": wiilkaWalaal,
       "adeer": adeer,
       "marwo": marwo,
       "xaasle": xaasle
     };
+    h = mp;
     // print(mp);
     final _result = await http.post(_url, body: mp).then((response) {
       // print("------------------ ==" + response.body);

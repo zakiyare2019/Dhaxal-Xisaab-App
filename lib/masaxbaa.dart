@@ -1,20 +1,3 @@
-import 'dart:convert';
-import 'dart:io';
-import 'result.dart';
-
-void main(List<String> args) {
-  final inheritance = calculateIslamicInheritance(
-      100, 0, 0, 1, 2 / 3, 1 / 8, 0, 0, 0, 1 / 3, 0, 0);
-  final json = jsonEncode(
-      inheritance.map((h) => {'name': h.name, 'share': h.share}).toList());
-  InheritanceScreen(
-    jsonData: json,
-  );
-  
-
-  // print('Inheritance written to file: $filename');
-}
-
 class Heir {
   final String name;
   double share;
@@ -28,8 +11,6 @@ class Heir {
 
 List<Heir> calculateIslamicInheritance(
     double estateValue,
-    double debts,
-    double funeralExpenses,
     double son,
     double daughter,
     double wife,
@@ -39,8 +20,7 @@ List<Heir> calculateIslamicInheritance(
     double mother,
     double uncle,
     double husband) {
-  final double total = estateValue - debts - funeralExpenses;
-
+  
   final List<Heir> heirs = [
     Heir('Son', son),
     Heir('Daughter', daughter),
@@ -72,27 +52,24 @@ List<Heir> calculateIslamicInheritance(
     );
 
     if (maleRelative != null) {
-      maleRelative =
-          maleRelative.updateShare(maleRelative.share + (1 - totalShares));
+      maleRelative = maleRelative.updateShare(maleRelative.share + (1 - totalShares));
       totalShares = 1;
     }
   }
 
-  // If total shares are greater than 1, adjust the shares proportionally
+  // Adjust shares proportionally if total shares exceed 1
   if (totalShares > 1) {
     heirs.forEach((heir) {
-      if (heir.share > 1 / totalShares) {
-        heir.share = heir.share / totalShares;
-      }
+      heir.share = heir.share / totalShares;
     });
 
-    totalShares = heirs.fold<double>(0, (prev, curr) => prev + curr.share);
+    totalShares = 1;
   }
 
   // Calculate inheritance for each heir
   final List<Heir> inheritance = [];
   heirs.forEach((heir) {
-    double amount = double.parse((total * heir.share).toStringAsFixed(2));
+    double amount = double.parse((estateValue * heir.share).toStringAsFixed(2));
     inheritance.add(Heir(heir.name, double.parse((amount.toStringAsFixed(2)))));
   });
 

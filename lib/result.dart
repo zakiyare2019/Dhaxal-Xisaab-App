@@ -1,6 +1,9 @@
 import 'dart:convert';
-
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 
 class Heir {
   final String name;
@@ -32,23 +35,82 @@ class _InheritanceScreenState extends State<InheritanceScreen> {
     heirs = List<Heir>.from(jsonData['heirs'].map((x) => Heir.fromJson(x)));
   }
 
-  // rest of the code
+  Future<void> _printDocument() async {
+    final pdf = pw.Document();
+    final font = await PdfGoogleFonts.nunitoExtraBold();
+
+    pdf.addPage(
+      pw.MultiPage(
+        header: (pw.Context context) => pw.Text(
+          'Dhaxal Xisaab',
+          style: pw.TextStyle(
+            font: font,
+            fontSize: 30,
+            
+          ),
+        ),
+        footer: (pw.Context context) => pw.Positioned(
+          bottom: 0,
+          right: 0,
+          child: pw.Text(
+            'Page ${context.pageNumber}',
+            style: pw.TextStyle(
+              font: font,
+              fontSize: 18,
+            ),
+          ),
+        ),
+        build: (context) => [
+          pw.Header(
+            level: 0,
+            child: pw.Text(
+              'Heirs and their shares',
+              style: pw.TextStyle(
+                font: font,
+                fontSize: 25,
+                fontWeight: pw.FontWeight.bold,
+              ),
+            ),
+          ),
+          pw.Table.fromTextArray(
+            headers: ['Heir', 'Share'],
+            data: [
+              ...heirs.map(
+                (heir) => [heir.name, '\$ ${heir.share}'],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+
+    await Printing.layoutPdf(
+      onLayout: (format) => pdf.save(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Inheritance Information'),
+        actions: [
+          IconButton(
+            onPressed: _printDocument,
+            icon: Icon(Icons.print),
+          ),
+        ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
               'Heirs and their shares:',
               style: TextStyle(
-                fontSize: 20.0,
+                fontSize: 25.0,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -72,7 +134,7 @@ class _InheritanceScreenState extends State<InheritanceScreen> {
                         ),
                       ),
                       Text(
-                        '${heir.share} %',
+                        '\$ ${heir.share} ',
                         style: TextStyle(
                           fontSize: 18.0,
                         ),

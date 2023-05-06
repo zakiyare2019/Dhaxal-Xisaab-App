@@ -76,10 +76,6 @@ class _myAppState extends State<myApp> {
                       style: TextStyle(
                           fontSize: 18, fontWeight: FontWeight.bold))),
               DataColumn(
-                  label: Text('wiilka_wiilkiisa',
-                      style: TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold))),
-              DataColumn(
                   label: Text('adeer',
                       style: TextStyle(
                           fontSize: 18, fontWeight: FontWeight.bold))),
@@ -118,7 +114,6 @@ class _myAppState extends State<myApp> {
                           print('You tapped column 4 of ${row['gabdho']}');
                         },
                       ),
-                      
                       DataCell(
                         Text(row['aabo']),
                         onTap: () {
@@ -141,13 +136,6 @@ class _myAppState extends State<myApp> {
                         Text(row['abaayo']),
                         onTap: () {
                           print('You tapped column 2 of ${row['abaayo']}');
-                        },
-                      ),
-                      DataCell(
-                        Text(row['wiilka_wiilkiisa']),
-                        onTap: () {
-                          print(
-                              'You tapped column 3 of ${row['wiilka_wiilkiisa']}');
                         },
                       ),
                       DataCell(

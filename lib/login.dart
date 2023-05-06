@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:dhaxalxisaab/dhaxlayaal.dart';
+import 'package:dhaxalxisaab/register.dart';
 import 'package:flutter/material.dart';
 // import 'package:mysql1/mysql1.dart';
 import 'package:http/http.dart' as http;
 import 'home.dart';
 
 class MyLogin extends StatefulWidget {
-  const MyLogin({Key? key}) : super(key: key);
 
   @override
   _MyLoginState createState() => _MyLoginState();
@@ -169,7 +170,7 @@ class _MyLoginState extends State<MyLogin> {
                                                   // backgroundColor: AppColors.mainColor,
                                                   body: Container(
                                                       // margin: EdgeInsets.only(top: 50),
-                                                      child: home_page())),
+                                                      child: dhaxlayaal())),
                                             ),
                                           ),
                                         );
@@ -219,7 +220,11 @@ class _MyLoginState extends State<MyLogin> {
                             children: [
                               TextButton(
                                 onPressed: () {
-                                  // Navigator.pushNamed(context, 'register');
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => Scaffold(
+                                      body: MyRegister(),
+                                    ),
+                                  ));
                                 },
                                 child: Text(
                                   'Sign Up',
