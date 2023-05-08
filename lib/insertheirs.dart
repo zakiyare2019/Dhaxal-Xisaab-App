@@ -27,7 +27,7 @@ class HeirsInserter {
     required this.xaasle,
     required this.marwo,
   });
-  late var h;
+  
   Future<void> insertHeirs2() async {
     final _url =
         Uri.parse("http://192.168.32.2/inheritance_api/newdhaxlayaal.php");
@@ -43,7 +43,7 @@ class HeirsInserter {
       "marwo": marwo,
       "xaasle": xaasle
     };
-    h = mp;
+    
     // print(mp);
     final _result = await http.post(_url, body: mp).then((response) {
       // print("------------------ ==" + response.body);

@@ -17,7 +17,7 @@ class _MyLoginState extends State<MyLogin> {
   final _formKey = GlobalKey<FormState>();
   final username = TextEditingController();
   final password = TextEditingController();
-  var jawaab = [];
+  late var jawaab = [];
   Future<void> makelogin() async {
     final _url = Uri.parse("http://192.168.32.2/inheritance_api/users.php");
 
@@ -70,7 +70,7 @@ class _MyLoginState extends State<MyLogin> {
             Container(
               padding: EdgeInsets.only(left: 35, top: 130),
               child: Text(
-                'Welcome\nBack',
+                'Welcome',
                 style: TextStyle(color: Colors.blue, fontSize: 33),
               ),
             ),

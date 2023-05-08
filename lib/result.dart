@@ -42,11 +42,10 @@ class _InheritanceScreenState extends State<InheritanceScreen> {
     pdf.addPage(
       pw.MultiPage(
         header: (pw.Context context) => pw.Text(
-          'Dhaxal Xisaab',
+          'Dhaxal Xisaab ',
           style: pw.TextStyle(
             font: font,
-            fontSize: 30,
-            
+            fontSize: 35,
           ),
         ),
         footer: (pw.Context context) => pw.Positioned(
@@ -56,7 +55,7 @@ class _InheritanceScreenState extends State<InheritanceScreen> {
             'Page ${context.pageNumber}',
             style: pw.TextStyle(
               font: font,
-              fontSize: 18,
+              fontSize: 28,
             ),
           ),
         ),
@@ -67,13 +66,22 @@ class _InheritanceScreenState extends State<InheritanceScreen> {
               'Heirs and their shares',
               style: pw.TextStyle(
                 font: font,
-                fontSize: 25,
+                fontSize: 28,
                 fontWeight: pw.FontWeight.bold,
               ),
             ),
           ),
           pw.Table.fromTextArray(
             headers: ['Heir', 'Share'],
+            cellStyle: pw.TextStyle(
+              font: font,
+              fontSize: 20,
+            ),
+            headerStyle: pw.TextStyle(
+              font: font,
+              fontSize: 25,
+              fontWeight: pw.FontWeight.bold,
+            ),
             data: [
               ...heirs.map(
                 (heir) => [heir.name, '\$ ${heir.share}'],
@@ -104,7 +112,6 @@ class _InheritanceScreenState extends State<InheritanceScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(

@@ -120,7 +120,7 @@ class _dhaxlayaalState extends State<dhaxlayaal> {
                         height: 40,
                         child: TextField(
                           controller: wiil,
-                          
+
                           // inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
@@ -400,53 +400,53 @@ class _dhaxlayaalState extends State<dhaxlayaal> {
                       var xaasleshare = 0.0;
 
                       if (wiilal >= 1 && gabdho == 0) {
-                        wiilalshare = (1);
+                        wiilalshare = 1 * wiilal;
                       }
 
                       if ((wiilal == 0 || gabdho == 0)) {
                         if (xaaslee == 1) {
-                          marwoshare = (1 / 4);
+                          marwoshare = (1 / 4) * marwoo;
                         }
                         if (marwoo == 1) {
-                          xaasleshare = (1 / 2);
+                          xaasleshare = (1 / 2) * xaaslee;
                         }
                       }
 
                       if ((wiilal >= 1 || gabdho >= 1)) {
-                        wiilalshare = (2);
-                        gabdhoshare = (1);
+                        wiilalshare = (2) * wiilal;
+                        gabdhoshare = (1) * gabdho;
                         if (xaaslee == 1) {
-                          marwoshare = (1 / 8);
+                          marwoshare = (1 / 8) * marwoo;
                         }
                         if (marwoo == 1) {
-                          xaasleshare = (1 / 4);
+                          xaasleshare = (1 / 4) * xaaslee;
                         }
                         if (aaboo == 1) {
-                          aaboshare = (1 / 6);
+                          aaboshare = (1 / 6) * aaboo;
                         }
                         if (hooyoo == 1) {
-                          hooyoshare = (1 / 6);
+                          hooyoshare = (1 / 6) * hooyoo;
                         }
                       }
                       if (wiilal == 0 && gabdho == 1) {
-                        gabdhoshare = (1 / 2);
+                        gabdhoshare = (1 / 2) * gabdho;
                       }
                       if (wiilal == 0 && gabdho == 0 && abaayoo == 1) {
-                        abaayoshare = (1 / 2);
+                        abaayoshare = (1 / 2) * abaayoo;
                       }
                       if (wiilal == 0 && gabdho > 1) {
                         gabdhoshare = (2 / 3);
                       }
                       if (wiilal == 0 && gabdho == 0 && abaayoo > 1) {
-                        abaayoshare = (2 / 3);
+                        abaayoshare = (2 / 3) * abaayoo;
                       }
                       if ((wiilal == 0 || gabdho == 0) &&
                           (abaayoo > 1 || wiilal > 1)) {
-                        hooyoshare = (1 / 3);
+                        hooyoshare = (1 / 3) * hooyoo;
                       }
                       if ((wiilal >= 1 || gabdho >= 1) &&
                           (abaayoo > 1 || wiilal > 1)) {
-                        hooyoshare = (1 / 6);
+                        hooyoshare = (1 / 6) * hooyoo;
                       }
                       final inheritance = calculateIslamicInheritance(
                           double.parse(lacag.text.toString()),
