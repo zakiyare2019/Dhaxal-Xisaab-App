@@ -1,13 +1,9 @@
 import 'dart:convert';
-import 'dart:io';
+
 import 'package:flutter/material.dart';
-// import 'package:mysql1/mysql1.dart';
-import 'package:http/http.dart' as http;
-import 'insertHeirs.dart';
-// import 'main.dart';
+
 import 'result.dart';
 import 'masaxbaa.dart';
-import 'result.dart';
 
 class dhaxlayaal extends StatefulWidget {
   @override
@@ -26,28 +22,6 @@ class _dhaxlayaalState extends State<dhaxlayaal> {
   final marwo = TextEditingController();
   final xaasle = TextEditingController();
   final adeer = TextEditingController();
-
-  String? marxuumID;
-  List lst = List.empty();
-
-  String? id;
-  Future getData() async {
-    var url = 'http://192.168.32.2/inheritance_api/dhaxlayaal.php';
-    var res = await http.get(Uri.parse(url));
-    if (res.statusCode == 200) {
-      var datta = json.decode(res.body);
-      setState(() {
-        lst = datta;
-        lst.removeAt(0);
-      });
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    var d = getData();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -335,30 +309,25 @@ class _dhaxlayaalState extends State<dhaxlayaal> {
                 height: 10,
               ),
               Container(
-                  margin: EdgeInsets.only(right: 20),
-                  child: Row(
-                    children: [
-                      Text(
-                        'xaasle:                              ',
-                        style: TextStyle(fontSize: 20, color: Colors.black),
+                margin: EdgeInsets.only(right: 20),
+                child: ListTile(
+                  title: Text(
+                    'Xaasle',
+                    style: TextStyle(fontSize: 20, color: Colors.black),
+                  ),
+                  trailing: SizedBox(
+                    width: 100.0,
+                    height: 40,
+                    child: TextField(
+                      controller: xaasle,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
                       ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      SizedBox(
-                        width: 100.0,
-                        height: 40,
-                        child: TextField(
-                          controller: xaasle,
-                          // inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                      ),
-                    ],
-                  )),
+                    ),
+                  ),
+                ),
+              ),
               SizedBox(
                 height: 50,
               ),
@@ -367,118 +336,111 @@ class _dhaxlayaalState extends State<dhaxlayaal> {
                 height: 43,
                 child: ElevatedButton(
                     onPressed: () async {
-                      final data = HeirsInserter(
-                          marxuumID: _marxuumidcontroller.text,
-                          aabo: aabo.text,
-                          hooyo: hooyo.text,
-                          abaayo: abaayo.text,
-                          aboowe: aboowe.text,
-                          wiil: wiil.text,
-                          gabar: gabar.text,
-                          xaasle: xaasle.text,
-                          marwo: marwo.text,
-                          adeer: adeer.text);
+                      try {
+                        var wiilal = double.parse(wiil.text);
+                        var gabdho = double.parse(gabar.text);
+                        var aaboo = double.parse(aabo.text);
+                        var hooyoo = double.parse(hooyo.text);
+                        var aboowee = double.parse(aboowe.text);
+                        var abaayoo = double.parse(abaayo.text);
+                        var adeere = double.parse(adeer.text);
+                        var marwoo = double.parse(marwo.text);
+                        var xaaslee = double.parse(xaasle.text);
 
-                      var wiilal = double.parse(wiil.text);
-                      var gabdho = double.parse(gabar.text);
-                      var aaboo = double.parse(aabo.text);
-                      var hooyoo = double.parse(hooyo.text);
-                      var aboowee = double.parse(aboowe.text);
-                      var abaayoo = double.parse(abaayo.text);
-                      var adeere = double.parse(adeer.text);
-                      var marwoo = double.parse(marwo.text);
-                      var xaaslee = double.parse(xaasle.text);
+                        var wiilalshare = 0.0;
+                        var gabdhoshare = 0.0;
+                        var aaboshare = 0.0;
+                        var hooyoshare = 0.0;
+                        var abooweshare = 0.0;
+                        var abaayoshare = 0.0;
+                        var adeershare = 0.0;
+                        var marwoshare = 0.0;
+                        var xaasleshare = 0.0;
 
-                      var wiilalshare = 0.0;
-                      var gabdhoshare = 0.0;
-                      var aaboshare = 0.0;
-                      var hooyoshare = 0.0;
-                      var abooweshare = 0.0;
-                      var abaayoshare = 0.0;
-                      var adeershare = 0.0;
-                      var marwoshare = 0.0;
-                      var xaasleshare = 0.0;
+                        if (wiilal >= 1 && gabdho == 0) {
+                          wiilalshare = 1 * wiilal;
+                        }
 
-                      if (wiilal >= 1 && gabdho == 0) {
-                        wiilalshare = 1 * wiilal;
-                      }
+                        if ((wiilal == 0 || gabdho == 0)) {
+                          if (xaaslee == 1) {
+                            marwoshare = (1 / 4) * marwoo;
+                          }
+                          if (marwoo == 1) {
+                            xaasleshare = (1 / 2) * xaaslee;
+                          }
+                        }
 
-                      if ((wiilal == 0 || gabdho == 0)) {
-                        if (xaaslee == 1) {
-                          marwoshare = (1 / 4) * marwoo;
+                        if ((wiilal >= 1 || gabdho >= 1)) {
+                          wiilalshare = (2) * wiilal;
+                          gabdhoshare = (1) * gabdho;
+                          if (xaaslee == 1) {
+                            marwoshare = (1 / 8) * marwoo;
+                          }
+                          if (marwoo == 1) {
+                            xaasleshare = (1 / 4) * xaaslee;
+                          }
+                          if (aaboo == 1) {
+                            aaboshare = (1 / 6) * aaboo;
+                          }
+                          if (hooyoo == 1) {
+                            hooyoshare = (1 / 6) * hooyoo;
+                          }
                         }
-                        if (marwoo == 1) {
-                          xaasleshare = (1 / 2) * xaaslee;
+                        if (wiilal == 0 && gabdho == 1) {
+                          gabdhoshare = (1 / 2) * gabdho;
                         }
-                      }
-
-                      if ((wiilal >= 1 || gabdho >= 1)) {
-                        wiilalshare = (2) * wiilal;
-                        gabdhoshare = (1) * gabdho;
-                        if (xaaslee == 1) {
-                          marwoshare = (1 / 8) * marwoo;
+                        if (wiilal == 0 && gabdho == 0 && abaayoo == 1) {
+                          abaayoshare = (1 / 2) * abaayoo;
                         }
-                        if (marwoo == 1) {
-                          xaasleshare = (1 / 4) * xaaslee;
+                        if (wiilal == 0 && gabdho > 1) {
+                          gabdhoshare = (2 / 3);
                         }
-                        if (aaboo == 1) {
-                          aaboshare = (1 / 6) * aaboo;
+                        if (wiilal == 0 && gabdho == 0 && abaayoo > 1) {
+                          abaayoshare = (2 / 3) * abaayoo;
                         }
-                        if (hooyoo == 1) {
+                        if ((wiilal == 0 || gabdho == 0) &&
+                            (abaayoo > 1 || wiilal > 1)) {
+                          hooyoshare = (1 / 3) * hooyoo;
+                        }
+                        if ((wiilal >= 1 || gabdho >= 1) &&
+                            (abaayoo > 1 || wiilal > 1)) {
                           hooyoshare = (1 / 6) * hooyoo;
                         }
-                      }
-                      if (wiilal == 0 && gabdho == 1) {
-                        gabdhoshare = (1 / 2) * gabdho;
-                      }
-                      if (wiilal == 0 && gabdho == 0 && abaayoo == 1) {
-                        abaayoshare = (1 / 2) * abaayoo;
-                      }
-                      if (wiilal == 0 && gabdho > 1) {
-                        gabdhoshare = (2 / 3);
-                      }
-                      if (wiilal == 0 && gabdho == 0 && abaayoo > 1) {
-                        abaayoshare = (2 / 3) * abaayoo;
-                      }
-                      if ((wiilal == 0 || gabdho == 0) &&
-                          (abaayoo > 1 || wiilal > 1)) {
-                        hooyoshare = (1 / 3) * hooyoo;
-                      }
-                      if ((wiilal >= 1 || gabdho >= 1) &&
-                          (abaayoo > 1 || wiilal > 1)) {
-                        hooyoshare = (1 / 6) * hooyoo;
-                      }
-                      final inheritance = calculateIslamicInheritance(
-                          double.parse(lacag.text.toString()),
-                          wiilalshare,
-                          gabdhoshare,
-                          marwoshare,
-                          abooweshare,
-                          abaayoshare,
-                          aaboshare,
-                          hooyoshare,
-                          adeershare,
-                          xaasleshare);
+                        final inheritance = calculateIslamicInheritance(
+                            double.parse(lacag.text.toString()),
+                            wiilal*2,
+                            gabdho,
+                            marwoo*(1/8),
+                            aboowee,
+                            abaayoo,
+                            aaboo*(1/6),
+                            hooyoo*(1/6),
+                            adeere,
+                            xaaslee*(1/4));
+                        final json = jsonEncode(
+                          inheritance
+                              .map(
+                                (h) => {'name': h.name, 'share': h.share},
+                              )
+                              .toList(),
+                        );
+                        String jjj = '{"heirs": ' + json + '}';
 
-                      final json = jsonEncode(
-                        inheritance
-                            .map(
-                              (h) => {'name': h.name, 'share': h.share},
-                            )
-                            .toList(),
-                      );
-                      String jjj = '{"heirs": ' + json + '}';
-
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => Scaffold(
-                            body: InheritanceScreen(
-                              jsonData: jjj,
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => Scaffold(
+                              body: InheritanceScreen(
+                                jsonData: jjj,
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                      final response = await data.insertHeirs2();
+                        );
+                      } catch (exception) {
+                        final snack = SnackBar(content: Text('please fill'));
+                        ScaffoldMessenger.of(context).showSnackBar(snack);
+                      }
+
+                      // final response = await data.insertHeirs2();
                       wiil.clear();
                       _marxuumidcontroller.clear();
                       lacag.clear();
