@@ -11,6 +11,20 @@ class dhaxlayaal extends StatefulWidget {
 }
 
 class _dhaxlayaalState extends State<dhaxlayaal> {
+  void clear() {
+    wiil.clear();
+    _marxuumidcontroller.clear();
+    lacag.clear();
+    gabar.clear();
+    aabo.clear();
+    hooyo.clear();
+    xaasle.clear();
+    marwo.clear();
+    adeer.clear();
+    aboowe.clear();
+    abaayo.clear();
+  }
+
   final _marxuumidcontroller = TextEditingController();
   final lacag = TextEditingController();
   final wiil = TextEditingController();
@@ -377,46 +391,47 @@ class _dhaxlayaalState extends State<dhaxlayaal> {
                             marwoshare = (1 / 8) * marwoo;
                           }
                           if (marwoo == 1) {
-                            xaasleshare = (1 / 4) * xaaslee;
+                            xaasleshare = (1 / 4);
                           }
                           if (aaboo == 1) {
-                            aaboshare = (1 / 6) * aaboo;
+                            aaboshare = (1 / 6);
                           }
                           if (hooyoo == 1) {
-                            hooyoshare = (1 / 6) * hooyoo;
+                            hooyoshare = (1 / 6);
                           }
                         }
                         if (wiilal == 0 && gabdho == 1) {
-                          gabdhoshare = (1 / 2) * gabdho;
+                          gabdhoshare = (1 / 2);
                         }
                         if (wiilal == 0 && gabdho == 0 && abaayoo == 1) {
-                          abaayoshare = (1 / 2) * abaayoo;
+                          abaayoshare = (1 / 2);
                         }
                         if (wiilal == 0 && gabdho > 1) {
-                          gabdhoshare = (2 / 3);
+                          gabdhoshare = (2 / 3)*gabdho;
                         }
                         if (wiilal == 0 && gabdho == 0 && abaayoo > 1) {
                           abaayoshare = (2 / 3) * abaayoo;
                         }
                         if ((wiilal == 0 || gabdho == 0) &&
                             (abaayoo > 1 || wiilal > 1)) {
-                          hooyoshare = (1 / 3) * hooyoo;
+                          hooyoshare = (1 / 3);
                         }
                         if ((wiilal >= 1 || gabdho >= 1) &&
                             (abaayoo > 1 || wiilal > 1)) {
-                          hooyoshare = (1 / 6) * hooyoo;
+                          hooyoshare = (1 / 6);
                         }
+
                         final inheritance = calculateIslamicInheritance(
                             double.parse(lacag.text.toString()),
-                            wiilal*2,
-                            gabdho,
-                            marwoo*(1/8),
-                            aboowee,
-                            abaayoo,
-                            aaboo*(1/6),
-                            hooyoo*(1/6),
-                            adeere,
-                            xaaslee*(1/4));
+                            wiilalshare,
+                            gabdhoshare,
+                            marwoshare,
+                            abooweshare,
+                            abaayoshare,
+                            aaboshare,
+                            hooyoshare,
+                            adeershare,
+                            xaasleshare);
                         final json = jsonEncode(
                           inheritance
                               .map(
@@ -441,17 +456,6 @@ class _dhaxlayaalState extends State<dhaxlayaal> {
                       }
 
                       // final response = await data.insertHeirs2();
-                      wiil.clear();
-                      _marxuumidcontroller.clear();
-                      lacag.clear();
-                      gabar.clear();
-                      aabo.clear();
-                      hooyo.clear();
-                      xaasle.clear();
-                      marwo.clear();
-                      adeer.clear();
-                      aboowe.clear();
-                      abaayo.clear();
                     },
                     child: Text(
                       'Keedi',
