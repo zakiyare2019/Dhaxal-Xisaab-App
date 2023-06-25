@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'login.dart';
+import 'd.dart';
 
 void main(List<String> args) {
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
     home: Scaffold(
-      body: MyLogin(),
+      body: LiveHeirsScreen(),
     ),
   ));
 }

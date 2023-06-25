@@ -27,7 +27,9 @@ class _MyLoginState extends State<MyLogin> {
         final data = json.decode(response.body);
         if (data['status'] == "success") {
           Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => Scaffold(body: dhaxlayaal()),
+            builder: (context) => Scaffold(body: null
+            // dhaxlayaal()
+            ),
           ));
         } else {
           final snack = SnackBar(content: Text('Invalid username or password'));

@@ -1,471 +1,282 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 
-import 'result.dart';
-import 'masaxbaa.dart';
+class Heir {
+  final String name;
+  double share;
 
-class dhaxlayaal extends StatefulWidget {
-  @override
-  State<dhaxlayaal> createState() => _dhaxlayaalState();
+  Heir(this.name, this.share);
+
+  Heir.fromJson(Map<String, dynamic> json)
+      : name = json['name'],
+        share = double.parse(json['share'].toString());
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'share': share,
+      };
 }
 
-class _dhaxlayaalState extends State<dhaxlayaal> {
-  void clear() {
-    wiil.clear();
-    _marxuumidcontroller.clear();
-    lacag.clear();
-    gabar.clear();
-    aabo.clear();
-    hooyo.clear();
-    xaasle.clear();
-    marwo.clear();
-    adeer.clear();
-    aboowe.clear();
-    abaayo.clear();
+class InheritanceScreen extends StatefulWidget {
+  final String jsonData;
+
+  const InheritanceScreen({Key? key, required this.jsonData}) : super(key: key);
+
+  @override
+  _InheritanceScreenState createState() => _InheritanceScreenState();
+}
+
+class _InheritanceScreenState extends State<InheritanceScreen> {
+  late List<Heir> heirs;
+
+  @override
+  void initState() {
+    super.initState();
+    var jsonData = json.decode(widget.jsonData);
+    heirs = List<Heir>.from(jsonData['heirs'].map((x) => Heir.fromJson(x)));
+    calculateIslamicInheritance();
   }
 
-  final _marxuumidcontroller = TextEditingController();
-  final lacag = TextEditingController();
-  final wiil = TextEditingController();
-  final gabar = TextEditingController();
-  final aabo = TextEditingController();
-  final hooyo = TextEditingController();
-  final abaayo = TextEditingController();
-  final aboowe = TextEditingController();
-  final marwo = TextEditingController();
-  final xaasle = TextEditingController();
-  final adeer = TextEditingController();
+  void calculateIslamicInheritance() {
+    final double estateValue = 100000; // Example estate value
+
+    // Define the shares for each heir
+    double son = 2;
+    double daughter = 1;
+    double wife = 1;
+    double brother = 1;
+    double sister = 1;
+    double father = 1;
+    double mother = 1;
+    double uncle = 1;
+    double husband = 1;
+
+    final List<Heir> calculatedInheritance = calculateInheritance(
+      estateValue,
+      son,
+      daughter,
+      wife,
+      brother,
+      sister,
+      father,
+      mother,
+      uncle,
+      husband,
+    );
+
+    setState(() {
+      heirs = calculatedInheritance;
+    });
+  }
+
+  List<Heir> calculateInheritance(
+    double estateValue,
+    double son,
+    double daughter,
+    double wife,
+    double brother,
+    double sister,
+    double father,
+    double mother,
+    double uncle,
+    double husband,
+  ) {
+    final List<Heir> heirs = [
+      Heir('Son', son),
+      Heir('Daughter', daughter),
+      Heir('Wife', wife),
+      Heir('Brother', brother),
+      Heir('Sister', sister),
+      Heir('Father', father),
+      Heir('Mother', mother),
+      Heir('Uncle', uncle),
+      Heir('Husband', husband),
+    ];
+
+    // Remove heirs with zero shares
+    heirs.removeWhere((heir) => heir.share == 0);
+
+    // Calculate total shares
+    double totalShares = heirs.fold<double>(0, (prev, curr) => prev + curr.share);
+
+    // Check if Islamic inheritance rules are followed
+    bool isValidInheritance = validateIslamicInheritance(heirs);
+    if (!isValidInheritance) {
+      return [];
+    }
+
+    // If total shares are less than 1, distribute the remaining share among eligible relatives
+    if (totalShares < 1) {
+      distributeRemainingShare(heirs, 1 - totalShares);
+      totalShares = 1;
+    }
+
+    // Adjust shares proportionally if total shares exceed 1
+    if (totalShares > 1) {
+      heirs.forEach((heir) {
+        heir.share = heir.share / totalShares;
+      });
+      totalShares = 1;
+    }
+
+    // Calculate inheritance for each heir
+    final List<Heir> inheritance = [];
+    heirs.forEach((heir) {
+      double amount = double.parse((estateValue * heir.share).toStringAsFixed(2));
+      inheritance.add(Heir(heir.name, double.parse(amount.toStringAsFixed(2))));
+    });
+
+    return inheritance;
+  }
+
+  bool validateIslamicInheritance(List<Heir> heirs) {
+    final List<String> femaleHeirs = ['Daughter', 'Wife', 'Sister', 'Mother'];
+
+    for (int i = 0; i < heirs.length; i++) {
+      if (femaleHeirs.contains(heirs[i].name)) {
+        for (int j = 0; j < heirs.length; j++) {
+          if (heirs[j].name == 'Son' || heirs[j].name == 'Brother' || heirs[j].name == 'Father' || heirs[j].name == 'Uncle' || heirs[j].name == 'Husband') {
+            if (heirs[i].share > heirs[j].share) {
+              return false;
+            }
+          }
+        }
+      }
+    }
+
+    return true;
+  }
+
+  void distributeRemainingShare(List<Heir> heirs, double remainingShare) {
+    for (int i = 0; i < heirs.length; i++) {
+      if (heirs[i].name == 'Son' || heirs[i].name == 'Brother' || heirs[i].name == 'Father' || heirs[i].name == 'Uncle' || heirs[i].name == 'Husband') {
+        heirs[i].share += remainingShare;
+        break;
+      }
+    }
+  }
+
+  Future<void> _printDocument() async {
+    final pdf = pw.Document();
+    final font = await PdfGoogleFonts.nunitoExtraBold();
+
+    pdf.addPage(
+      pw.MultiPage(
+        header: (pw.Context context) => pw.Text(
+          'Dhaxal Xisaab',
+          style: pw.TextStyle(
+            font: font,
+            fontSize: 35,
+          ),
+        ),
+        footer: (pw.Context context) => pw.Positioned(
+          bottom: 0,
+          right: 0,
+          child: pw.Text(
+            'Page ${context.pageNumber}',
+            style: pw.TextStyle(
+              font: font,
+              fontSize: 28,
+            ),
+          ),
+        ),
+        build: (context) => [
+          pw.Header(
+            level: 0,
+            child: pw.Text(
+              'Heirs and their shares',
+              style: pw.TextStyle(
+                font: font,
+                fontSize: 28,
+                fontWeight: pw.FontWeight.bold,
+              ),
+            ),
+          ),
+          pw.Table.fromTextArray(
+            headers: ['Heir', 'Share'],
+            cellStyle: pw.TextStyle(
+              font: font,
+              fontSize: 20,
+            ),
+            headerStyle: pw.TextStyle(
+              font: font,
+              fontSize: 25,
+              fontWeight: pw.FontWeight.bold,
+            ),
+            data: [
+              ...heirs.map(
+                (heir) => [heir.name, '\$ ${heir.share.toStringAsFixed(2)}'],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+
+    await Printing.layoutPdf(
+      onLayout: (format) => pdf.save(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-          margin: EdgeInsets.only(top: 5, left: 20, right: 20),
-          child: ListView(
-            children: [
-              Container(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        margin: EdgeInsets.all(8),
-                        padding: EdgeInsets.all(5),
-                        // color: Color.fromARGB(255, 169, 115, 245),
-                        child: TextFormField(
-                          controller: _marxuumidcontroller,
-                          decoration: InputDecoration(
-                            labelText: 'Magaca Marxuum ',
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.blue),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+      appBar: AppBar(
+        title: Text('Inheritance Information'),
+        actions: [
+          IconButton(
+            onPressed: _printDocument,
+            icon: Icon(Icons.print),
+          ),
+        ],
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'Heirs and their shares:',
+              style: TextStyle(
+                fontSize: 25.0,
+                fontWeight: FontWeight.bold,
               ),
-              Container(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        margin: EdgeInsets.all(8),
-                        padding: EdgeInsets.all(5),
-                        // color: Color.fromARGB(255, 169, 115, 245),
-                        child: TextFormField(
-                          controller: lacag,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            labelText: 'Hanti ',
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.blue),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Container(
-                  margin: EdgeInsets.all(5),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: heirs.length,
+              itemBuilder: (context, index) {
+                final heir = heirs[index];
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 8.0, horizontal: 16.0),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Wiil ama Wiilal:               ',
-                        style: TextStyle(fontSize: 20, color: Colors.black),
+                        '${heir.name}:',
+                        style: TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      SizedBox(
-                        width: 100.0,
-                        height: 40,
-                        child: TextField(
-                          controller: wiil,
-
-                          // inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                          ),
+                      Text(
+                        '\$ ${heir.share.toStringAsFixed(2)}',
+                        style: TextStyle(
+                          fontSize: 18.0,
                         ),
                       ),
                     ],
-                  )),
-              SizedBox(
-                height: 10,
-              ),
-              Container(
-                  margin: EdgeInsets.only(right: 20),
-                  child: Row(
-                    children: [
-                      Text(
-                        'Gabar ama Gabdho:       ',
-                        style: TextStyle(fontSize: 20, color: Colors.black),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      SizedBox(
-                        width: 100.0,
-                        height: 40,
-                        child: TextField(
-                          controller: gabar,
-                          // inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                      ),
-                    ],
-                  )),
-              SizedBox(
-                height: 10,
-              ),
-              Container(
-                  margin: EdgeInsets.only(right: 20),
-                  child: Row(
-                    children: [
-                      Text(
-                        'Aabo:                                ',
-                        style: TextStyle(fontSize: 20, color: Colors.black),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      SizedBox(
-                        width: 100.0,
-                        height: 40,
-                        child: TextField(
-                          controller: aabo,
-                          // inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                      ),
-                    ],
-                  )),
-              SizedBox(
-                height: 10,
-              ),
-              Container(
-                  margin: EdgeInsets.only(right: 20),
-                  child: Row(
-                    children: [
-                      Text(
-                        'Hooyo:                              ',
-                        style: TextStyle(fontSize: 20, color: Colors.black),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      SizedBox(
-                        width: 100.0,
-                        height: 40,
-                        child: TextField(
-                          controller: hooyo,
-                          // inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                      ),
-                    ],
-                  )),
-              SizedBox(
-                height: 10,
-              ),
-              Container(
-                  margin: EdgeInsets.only(right: 20),
-                  child: Row(
-                    children: [
-                      Text(
-                        'walaal wiila                      ',
-                        style: TextStyle(fontSize: 20, color: Colors.black),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      SizedBox(
-                        width: 100.0,
-                        height: 40,
-                        child: TextField(
-                          controller: aboowe,
-                          // inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                      ),
-                    ],
-                  )),
-              SizedBox(
-                height: 10,
-              ),
-              Container(
-                  margin: EdgeInsets.only(right: 20),
-                  child: Row(
-                    children: [
-                      Text(
-                        'walaal  gabar                   ',
-                        style: TextStyle(fontSize: 20, color: Colors.black),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Container(
-                        child: SizedBox(
-                          width: 100.0,
-                          height: 40,
-                          child: TextField(
-                            controller: abaayo,
-                            // inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                            keyboardType: TextInputType.number,
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  )),
-              SizedBox(
-                height: 10,
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Container(
-                  margin: EdgeInsets.only(right: 20),
-                  child: Row(
-                    children: [
-                      Text(
-                        'Adeer:                               ',
-                        style: TextStyle(fontSize: 20, color: Colors.black),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      SizedBox(
-                        width: 100.0,
-                        height: 40,
-                        child: TextField(
-                          controller: adeer,
-                          // inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                      ),
-                    ],
-                  )),
-              SizedBox(
-                height: 10,
-              ),
-              Container(
-                  margin: EdgeInsets.only(right: 20),
-                  child: Row(
-                    children: [
-                      Text(
-                        'marwo:                             ',
-                        style: TextStyle(fontSize: 20, color: Colors.black),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      SizedBox(
-                        width: 100.0,
-                        height: 40,
-                        child: TextField(
-                          controller: marwo,
-                          // inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                      ),
-                    ],
-                  )),
-              SizedBox(
-                height: 10,
-              ),
-              Container(
-                margin: EdgeInsets.only(right: 20),
-                child: ListTile(
-                  title: Text(
-                    'Xaasle',
-                    style: TextStyle(fontSize: 20, color: Colors.black),
                   ),
-                  trailing: SizedBox(
-                    width: 100.0,
-                    height: 40,
-                    child: TextField(
-                      controller: xaasle,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 50,
-              ),
-              Container(
-                width: double.infinity,
-                height: 43,
-                child: ElevatedButton(
-                    onPressed: () async {
-                      try {
-                        var wiilal = double.parse(wiil.text);
-                        var gabdho = double.parse(gabar.text);
-                        var aaboo = double.parse(aabo.text);
-                        var hooyoo = double.parse(hooyo.text);
-                        var aboowee = double.parse(aboowe.text);
-                        var abaayoo = double.parse(abaayo.text);
-                        var adeere = double.parse(adeer.text);
-                        var marwoo = double.parse(marwo.text);
-                        var xaaslee = double.parse(xaasle.text);
-
-                        var wiilalshare = 0.0;
-                        var gabdhoshare = 0.0;
-                        var aaboshare = 0.0;
-                        var hooyoshare = 0.0;
-                        var abooweshare = 0.0;
-                        var abaayoshare = 0.0;
-                        var adeershare = 0.0;
-                        var marwoshare = 0.0;
-                        var xaasleshare = 0.0;
-
-                        if (wiilal >= 1 && gabdho == 0) {
-                          wiilalshare = 1 * wiilal;
-                        }
-
-                        if ((wiilal == 0 || gabdho == 0)) {
-                          if (xaaslee == 1) {
-                            marwoshare = (1 / 4) * marwoo;
-                          }
-                          if (marwoo == 1) {
-                            xaasleshare = (1 / 2) * xaaslee;
-                          }
-                        }
-
-                        if ((wiilal >= 1 || gabdho >= 1)) {
-                          wiilalshare = (2) * wiilal;
-                          gabdhoshare = (1) * gabdho;
-                          if (xaaslee == 1) {
-                            marwoshare = (1 / 8) * marwoo;
-                          }
-                          if (marwoo == 1) {
-                            xaasleshare = (1 / 4);
-                          }
-                          if (aaboo == 1) {
-                            aaboshare = (1 / 6);
-                          }
-                          if (hooyoo == 1) {
-                            hooyoshare = (1 / 6);
-                          }
-                        }
-                        if (wiilal == 0 && gabdho == 1) {
-                          gabdhoshare = (1 / 2);
-                        }
-                        if (wiilal == 0 && gabdho == 0 && abaayoo == 1) {
-                          abaayoshare = (1 / 2);
-                        }
-                        if (wiilal == 0 && gabdho > 1) {
-                          gabdhoshare = (2 / 3)*gabdho;
-                        }
-                        if (wiilal == 0 && gabdho == 0 && abaayoo > 1) {
-                          abaayoshare = (2 / 3) * abaayoo;
-                        }
-                        if ((wiilal == 0 || gabdho == 0) &&
-                            (abaayoo > 1 || wiilal > 1)) {
-                          hooyoshare = (1 / 3);
-                        }
-                        if ((wiilal >= 1 || gabdho >= 1) &&
-                            (abaayoo > 1 || wiilal > 1)) {
-                          hooyoshare = (1 / 6);
-                        }
-
-                        final inheritance = calculateIslamicInheritance(
-                            double.parse(lacag.text.toString()),
-                            wiilalshare,
-                            gabdhoshare,
-                            marwoshare,
-                            abooweshare,
-                            abaayoshare,
-                            aaboshare,
-                            hooyoshare,
-                            adeershare,
-                            xaasleshare);
-                        final json = jsonEncode(
-                          inheritance
-                              .map(
-                                (h) => {'name': h.name, 'share': h.share},
-                              )
-                              .toList(),
-                        );
-                        String jjj = '{"heirs": ' + json + '}';
-
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => Scaffold(
-                              body: InheritanceScreen(
-                                jsonData: jjj,
-                              ),
-                            ),
-                          ),
-                        );
-                      } catch (exception) {
-                        final snack = SnackBar(content: Text('please fill'));
-                        ScaffoldMessenger.of(context).showSnackBar(snack);
-                      }
-
-                      // final response = await data.insertHeirs2();
-                    },
-                    child: Text(
-                      'Keedi',
-                      style: TextStyle(
-                        fontSize: 24,
-                      ),
-                    )),
-              )
-            ],
-          )),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
