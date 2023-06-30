@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:pdf/pdf.dart';
-import 'package:printing/printing.dart';
 
 void main() {
   runApp(MyApp());
@@ -181,16 +178,13 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     }
   }
 }
+
 class ResultsScreen extends StatelessWidget {
   final List<CalculationResult> results;
   final String appName;
   final DateTime printedDate;
 
-  ResultsScreen({
-    required this.results,
-    required this.appName,
-    required this.printedDate,
-  });
+  ResultsScreen({required this.results, required this.appName, required this.printedDate});
 
   @override
   Widget build(BuildContext context) {
@@ -212,12 +206,6 @@ class ResultsScreen extends StatelessWidget {
               style: TextStyle(fontSize: 16),
             ),
           ),
-          IconButton(
-            icon: Icon(Icons.print),
-            onPressed: () {
-              generatePDF(context);
-            },
-          ),
         ],
       ),
       body: Padding(
@@ -237,8 +225,7 @@ class ResultsScreen extends StatelessWidget {
                   final result = results[index];
                   return ListTile(
                     title: Text(result.heir.name),
-                    subtitle:
-                        Text('Share: ${(result.share * 100).toStringAsFixed(2)}%'),
+                    subtitle: Text('Share: ${(result.share * 100).toStringAsFixed(2)}%'),
                   );
                 },
               ),
@@ -252,45 +239,7 @@ class ResultsScreen extends StatelessWidget {
   String formattedDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
   }
-
-  Future<void> generatePDF(BuildContext context) async {
-    final pdf = pw.Document();
-
-    // Create the PDF content
-    pdf.addPage(
-      pw.Page(
-        build: (pw.Context context) {
-          return pw.Center(
-            child: pw.Column(
-              mainAxisAlignment: pw.MainAxisAlignment.center,
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                pw.Text(
-                  'Results:',
-                  style: pw.TextStyle(fontSize: 18),
-                ),
-                pw.SizedBox(height: 8),
-                for (final result in results)
-                  pw.Text(
-                    '${result.heir.name}: ${(result.share * 100).toStringAsFixed(2)}%',
-                  ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-
-    // Get the document as a list of bytes
-    final bytes = await pdf.save();
-
-    // Print the document
-    await Printing.layoutPdf(
-      onLayout: (PdfPageFormat format) async => bytes,
-    );
-  }
 }
-
 
 class Heir {
   final String name;
