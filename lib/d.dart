@@ -1,343 +1,306 @@
 import 'package:flutter/material.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:pdf/pdf.dart';
-import 'package:printing/printing.dart';
 
-void main() {
-  runApp(MyApp());
-}
+enum Gender { male, female }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Islamic Inheritance Calculator',
+      title: 'Inheritance Calculator',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: CalculatorScreen(),
+      home: InheritanceCalculatorScreen(),
     );
   }
 }
 
-class CalculatorScreen extends StatefulWidget {
+class InheritanceCalculatorScreen extends StatefulWidget {
   @override
-  _CalculatorScreenState createState() => _CalculatorScreenState();
+  _InheritanceCalculatorScreenState createState() =>
+      _InheritanceCalculatorScreenState();
 }
 
-class _CalculatorScreenState extends State<CalculatorScreen> {
-  final List<Heir> heirs = [
-    Heir(name: 'Son'),
-    Heir(name: 'Daughter'),
-    Heir(name: 'Father'),
-    Heir(name: 'Mother'),
-    Heir(name: 'Brother'),
-    Heir(name: 'Sister'),
-    Heir(name: 'Husband'),
-    Heir(name: 'Wife'),
+class _InheritanceCalculatorScreenState
+    extends State<InheritanceCalculatorScreen> {
+  final PageController _pageController = PageController(initialPage: 0);
+  Gender _selectedGender = Gender.male;
+  TextEditingController _deceasedNameController = TextEditingController();
+  TextEditingController _propertyTypeController = TextEditingController();
+  TextEditingController _loanAmountController = TextEditingController();
+  TextEditingController _leftBehindItemsController = TextEditingController();
+  TextEditingController _numberOfChildrenController = TextEditingController();
+  TextEditingController _numberOfSiblingsController = TextEditingController();
+  TextEditingController _hasWillController = TextEditingController();
+  TextEditingController _debtAmountController = TextEditingController();
+
+  List<Heir> heirs = [
+    Heir(name: 'Son', count: 0),
+    Heir(name: 'Daughter', count: 0),
+    Heir(name: 'Father', count: 0),
+    Heir(name: 'Mother', count: 0),
+    Heir(name: 'Full Brother', count: 0),
+    Heir(name: 'Full Sister', count: 0),
+    Heir(name: 'Husband', count: 0),
+    Heir(name: 'Wife', count: 0),
   ];
 
-  Gender deceasedGender = Gender.male;
-  List<CalculationResult> results = [];
+  int _currentPage = 0;
+
+  void _goToNextPage() {
+    setState(() {
+      if (_currentPage < pages.length - 1) {
+        _currentPage++;
+        _pageController.animateToPage(_currentPage, duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
+      }
+    });
+  }
+
+  void _goToPreviousPage() {
+    setState(() {
+      if (_currentPage > 0) {
+        _currentPage--;
+        _pageController.animateToPage(_currentPage, duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
+      }
+    });
+  }
+
+  void _calculateInheritance() {
+    // Perform the inheritance calculation using the collected data
+    // and display the result to the user
+    // You can access the collected data using the TextEditingController instances
+    // and other variables
+    // For simplicity, let's just print the data to the console for now
+    print('Deceased Name: ${_deceasedNameController.text}');
+    print('Gender: $_selectedGender');
+    print('Property Type: ${_propertyTypeController.text}');
+    print('Loan Amount: ${_loanAmountController.text}');
+    print('Left Behind Items: ${_leftBehindItemsController.text}');
+    print('Number of Children: ${_numberOfChildrenController.text}');
+    print('Number of Siblings: ${_numberOfSiblingsController.text}');
+    print('Has Will: ${_hasWillController.text}');
+    print('Debt Amount: ${_debtAmountController.text}');
+    for (var heir in heirs) {
+      print('${heir.name}: ${heir.count}');
+    }
+  }
+
+  List<Widget> pages = [
+    Page1(),
+    Page2(),
+    Page3(),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('DhaxalXisaab'),
+        title: Text('Inheritance Calculator'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      body: PageView(
+        controller: _pageController,
+        physics: NeverScrollableScrollPhysics(),
+        children: pages,
+      ),
+      bottomNavigationBar: Container(
+        padding: EdgeInsets.all(10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Deceased Gender:',
-              style: TextStyle(fontSize: 18),
+            ElevatedButton(
+              onPressed: _goToPreviousPage,
+              child: Text('Previous'),
             ),
-            SizedBox(height: 8),
-            Row(
-              children: [
-                Radio(
-                  value: Gender.male,
-                  groupValue: deceasedGender,
-                  onChanged: (value) {
-                    setState(() {
-                      deceasedGender = Gender.male;
-                    });
-                  },
-                ),
-                Text('Male'),
-                SizedBox(width: 16),
-                Radio(
-                  value: Gender.female,
-                  groupValue: deceasedGender,
-                  onChanged: (value) {
-                    setState(() {
-                      deceasedGender = Gender.female;
-                    });
-                  },
-                ),
-                Text('Female'),
-              ],
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Heirs:',
-              style: TextStyle(fontSize: 18),
-            ),
-            SizedBox(height: 8),
-            Expanded(
-              child: ListView.builder(
-                itemCount: heirs.length,
-                itemBuilder: (context, index) {
-                  return HeirItem(
-                    heir: heirs[index],
-                    onChanged: (value) {
-                      setState(() {
-                        heirs[index].count = value;
-                      });
-                    },
-                  );
-                },
-              ),
-            ),
-            SizedBox(height: 16),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  calculateHeirs();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ResultsScreen(results: results, appName: "Dhaxal xisaab", printedDate: DateTime.now())
-                    ),
-                  );
-                },
-                child: Text('Calculate'),
-              ),
+            ElevatedButton(
+              onPressed: () {
+                if (_currentPage == pages.length - 1) {
+                  // Last page, perform calculation
+                  _calculateInheritance();
+                } else {
+                  // Not the last page, go to next page
+                  _goToNextPage();
+                }
+              },
+              child: _currentPage == pages.length - 1 ? Text('Calculate') : Text('Next'),
             ),
           ],
         ),
       ),
     );
   }
-
-  void calculateHeirs() {
-    results.clear();
-
-    // Total counts of all heirs
-    int totalHeirsCount = heirs.fold(0, (sum, heir) => sum + heir.count);
-
-    // Calculate inheritance shares based on Islamic Sharia Law
-    if (deceasedGender == Gender.male) {
-      int sonCount = heirs[0].count;
-      int daughterCount = heirs[1].count;
-      int wifeCount = heirs[7].count;
-      int fullBrotherCount = heirs[4].count;
-      int fullSisterCount = heirs[5].count;
-
-      // Calculate shares for each heir type
-      double sonShare = (sonCount * 2) / (totalHeirsCount + sonCount);
-      double daughterShare = daughterCount / (totalHeirsCount + sonCount);
-      double wifeShare = wifeCount / (totalHeirsCount + sonCount);
-      double fatherShare = 1 / 6;
-      double motherShare = 1 / 6;
-      double fullBrotherShare = fullBrotherCount / 3;
-      double fullSisterShare = fullSisterCount / 6;
-
-      // Create CalculationResult objects for each heir
-      results.add(CalculationResult(heirs[0], sonShare));
-      results.add(CalculationResult(heirs[1], daughterShare));
-      results.add(CalculationResult(heirs[7], wifeShare));
-      results.add(CalculationResult(heirs[2], fatherShare));
-      results.add(CalculationResult(heirs[3], motherShare));
-      results.add(CalculationResult(heirs[4], fullBrotherShare));
-      results.add(CalculationResult(heirs[5], fullSisterShare));
-    } else {
-      int sonCount = heirs[0].count;
-      int daughterCount = heirs[1].count;
-      int husbandCount = heirs[6].count;
-      int fullBrotherCount = heirs[4].count;
-      int fullSisterCount = heirs[5].count;
-
-      // Calculate shares for each heir type
-      double sonShare = sonCount / (totalHeirsCount + daughterCount);
-      double daughterShare = (daughterCount * 2) / (totalHeirsCount + daughterCount);
-      double husbandShare = husbandCount / (totalHeirsCount + daughterCount);
-      double fatherShare = 1 / 6;
-      double motherShare = 1 / 6;
-      double fullBrotherShare = fullBrotherCount / 3;
-      double fullSisterShare = fullSisterCount / 6;
-
-      // Create CalculationResult objects for each heir
-      results.add(CalculationResult(heirs[0], sonShare));
-      results.add(CalculationResult(heirs[1], daughterShare));
-      results.add(CalculationResult(heirs[6], husbandShare));
-      results.add(CalculationResult(heirs[2], fatherShare));
-      results.add(CalculationResult(heirs[3], motherShare));
-      results.add(CalculationResult(heirs[4], fullBrotherShare));
-      results.add(CalculationResult(heirs[5], fullSisterShare));
-    }
-  }
 }
-class ResultsScreen extends StatelessWidget {
-  final List<CalculationResult> results;
-  final String appName;
-  final DateTime printedDate;
 
-  ResultsScreen({
-    required this.results,
-    required this.appName,
-    required this.printedDate,
-  });
+class Page1 extends StatelessWidget {
+  final TextEditingController _deceasedNameController = TextEditingController();
+  final List<DropdownMenuItem<Gender>> genderItems = [
+    DropdownMenuItem<Gender>(
+      value: Gender.male,
+      child: Text('Male'),
+    ),
+    DropdownMenuItem<Gender>(
+      value: Gender.female,
+      child: Text('Female'),
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Results'),
-        actions: [
-          Padding(
-            padding: EdgeInsets.only(right: 16.0),
-            child: Text(
-              appName,
-              style: TextStyle(fontSize: 16),
+    return Padding(
+      padding: EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Deceased Information', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          TextFormField(
+            controller: _deceasedNameController,
+            decoration: InputDecoration(
+              labelText: 'Name',
             ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter the deceased name';
+              }
+              return null;
+            },
           ),
-          Padding(
-            padding: EdgeInsets.only(right: 16.0),
-            child: Text(
-              'Printed: ${formattedDate(printedDate)}',
-              style: TextStyle(fontSize: 16),
+          SizedBox(height: 10),
+          DropdownButtonFormField<Gender>(
+            value: Gender.male,
+            onChanged: (value) {
+              // Handle gender selection
+            },
+            decoration: InputDecoration(
+              labelText: 'Gender',
             ),
+            items: genderItems,
           ),
-          IconButton(
-            icon: Icon(Icons.print),
-            onPressed: () {
-              generatePDF(context);
+        ],
+      ),
+    );
+  }
+}
+
+class Page2 extends StatelessWidget {
+  final TextEditingController _propertyTypeController = TextEditingController();
+  final TextEditingController _loanAmountController = TextEditingController();
+  final TextEditingController _leftBehindItemsController = TextEditingController();
+  final TextEditingController _numberOfChildrenController = TextEditingController();
+  final TextEditingController _numberOfSiblingsController = TextEditingController();
+  final TextEditingController _hasWillController = TextEditingController();
+  final TextEditingController _debtAmountController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Inheritance Details', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          TextFormField(
+            controller: _propertyTypeController,
+            decoration: InputDecoration(
+              labelText: 'Property Type',
+            ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter the property type';
+              }
+              return null;
+            },
+          ),
+          SizedBox(height: 10),
+          TextFormField(
+            controller: _loanAmountController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              labelText: 'Loan Amount',
+            ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter the loan amount';
+              }
+              return null;
+            },
+          ),
+          SizedBox(height: 10),
+          TextFormField(
+            controller: _leftBehindItemsController,
+            decoration: InputDecoration(
+              labelText: 'Left Behind Items',
+            ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter the left behind items';
+              }
+              return null;
             },
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Results:',
-              style: TextStyle(fontSize: 18),
-            ),
-            SizedBox(height: 8),
-            Expanded(
-              child: ListView.builder(
-                itemCount: results.length,
-                itemBuilder: (context, index) {
-                  final result = results[index];
-                  return ListTile(
-                    title: Text(result.heir.name),
-                    subtitle:
-                        Text('Share: ${(result.share * 100).toStringAsFixed(2)}%'),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  String formattedDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
-  }
-
-  Future<void> generatePDF(BuildContext context) async {
-    final pdf = pw.Document();
-
-    // Create the PDF content
-    pdf.addPage(
-      pw.Page(
-        build: (pw.Context context) {
-          return pw.Center(
-            child: pw.Column(
-              mainAxisAlignment: pw.MainAxisAlignment.center,
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                pw.Text(
-                  'Results:',
-                  style: pw.TextStyle(fontSize: 18),
-                ),
-                pw.SizedBox(height: 8),
-                for (final result in results)
-                  pw.Text(
-                    '${result.heir.name}: ${(result.share * 100).toStringAsFixed(2)}%',
-                  ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-
-    // Get the document as a list of bytes
-    final bytes = await pdf.save();
-
-    // Print the document
-    await Printing.layoutPdf(
-      onLayout: (PdfPageFormat format) async => bytes,
     );
   }
 }
 
+class Page3 extends StatelessWidget {
+  final List<Heir> heirs = [
+    Heir(name: 'Son', count: 0),
+    Heir(name: 'Daughter', count: 0),
+    Heir(name: 'Father', count: 0),
+    Heir(name: 'Mother', count: 0),
+    Heir(name: 'Full Brother', count: 0),
+    Heir(name: 'Full Sister', count: 0),
+    Heir(name: 'Husband', count: 0),
+    Heir(name: 'Wife', count: 0),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Heirs Information', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          SizedBox(height: 10),
+          ListView.builder(
+            shrinkWrap: true,
+            itemCount: heirs.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                title: Text(heirs[index].name),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        // Decrement count
+                        // You can also add validation to prevent negative count
+                      },
+                      icon: Icon(Icons.remove),
+                    ),
+                    Text(heirs[index].count.toString()),
+                    IconButton(
+                      onPressed: () {
+                        // Increment count
+                      },
+                      icon: Icon(Icons.add),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class Heir {
   final String name;
   int count;
 
-  Heir({required this.name, this.count = 0});
+  Heir({required this.name, required this.count});
 }
 
-class CalculationResult {
-  final Heir heir;
-  final double share;
-
-  CalculationResult(this.heir, this.share);
-}
-
-enum Gender {
-  male,
-  female,
-}
-
-class HeirItem extends StatelessWidget {
-  final Heir heir;
-  final ValueChanged<int> onChanged;
-
-  HeirItem({required this.heir, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(child: Text(heir.name)),
-        IconButton(
-          onPressed: () {
-            onChanged(heir.count + 1);
-          },
-          icon: Icon(Icons.add),
-        ),
-        Text(heir.count.toString()),
-        IconButton(
-          onPressed: () {
-            if (heir.count > 0) {
-              onChanged(heir.count - 1);
-            }
-          },
-          icon: Icon(Icons.remove),
-        ),
-      ],
-    );
-  }
-}
