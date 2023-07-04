@@ -51,7 +51,8 @@ class _InheritanceCalculatorScreenState
     setState(() {
       if (_currentPage < pages.length - 1) {
         _currentPage++;
-        _pageController.animateToPage(_currentPage, duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
+        _pageController.animateToPage(_currentPage,
+            duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
       }
     });
   }
@@ -60,7 +61,11 @@ class _InheritanceCalculatorScreenState
     setState(() {
       if (_currentPage > 0) {
         _currentPage--;
-        _pageController.animateToPage(_currentPage, duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
+        _pageController.animateToPage(
+          _currentPage,
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
       }
     });
   }
@@ -85,11 +90,24 @@ class _InheritanceCalculatorScreenState
     }
   }
 
-  List<Widget> pages = [
-    Page1(),
-    Page2(),
-    Page3(),
-  ];
+  List<Widget> pages = [];
+
+  @override
+  void initState() {
+    super.initState();
+    pages = [
+      Page1(
+        deceasedNameController: _deceasedNameController,
+        selectedGender: _selectedGender,
+      ),
+      Page2(
+        propertyTypeController: _propertyTypeController,
+        loanAmountController: _loanAmountController,
+        leftBehindItemsController: _leftBehindItemsController,
+      ),
+      Page3(heirs: heirs),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,10 +125,13 @@ class _InheritanceCalculatorScreenState
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            ElevatedButton(
-              onPressed: _goToPreviousPage,
-              child: Text('Previous'),
-            ),
+            if (_currentPage > 0) // Add this condition
+              ElevatedButton(
+                onPressed: _goToPreviousPage,
+                child: Text('Previous'),
+              ),
+            if (_currentPage == 0) // Add this condition
+              SizedBox(width: 80), // Empty container to maintain spacing
             ElevatedButton(
               onPressed: () {
                 if (_currentPage == pages.length - 1) {
@@ -121,7 +142,9 @@ class _InheritanceCalculatorScreenState
                   _goToNextPage();
                 }
               },
-              child: _currentPage == pages.length - 1 ? Text('Calculate') : Text('Next'),
+              child: _currentPage == pages.length - 1
+                  ? Text('Calculate')
+                  : Text('Next'),
             ),
           ],
         ),
@@ -131,7 +154,11 @@ class _InheritanceCalculatorScreenState
 }
 
 class Page1 extends StatelessWidget {
-  final TextEditingController _deceasedNameController = TextEditingController();
+  final TextEditingController deceasedNameController;
+  final Gender selectedGender;
+
+  Page1({required this.deceasedNameController, required this.selectedGender});
+
   final List<DropdownMenuItem<Gender>> genderItems = [
     DropdownMenuItem<Gender>(
       value: Gender.male,
@@ -150,9 +177,10 @@ class Page1 extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Deceased Information', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          Text('Deceased Information',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           TextFormField(
-            controller: _deceasedNameController,
+            controller: deceasedNameController,
             decoration: InputDecoration(
               labelText: 'Name',
             ),
@@ -165,7 +193,7 @@ class Page1 extends StatelessWidget {
           ),
           SizedBox(height: 10),
           DropdownButtonFormField<Gender>(
-            value: Gender.male,
+            value: selectedGender,
             onChanged: (value) {
               // Handle gender selection
             },
@@ -181,13 +209,15 @@ class Page1 extends StatelessWidget {
 }
 
 class Page2 extends StatelessWidget {
-  final TextEditingController _propertyTypeController = TextEditingController();
-  final TextEditingController _loanAmountController = TextEditingController();
-  final TextEditingController _leftBehindItemsController = TextEditingController();
-  final TextEditingController _numberOfChildrenController = TextEditingController();
-  final TextEditingController _numberOfSiblingsController = TextEditingController();
-  final TextEditingController _hasWillController = TextEditingController();
-  final TextEditingController _debtAmountController = TextEditingController();
+  final TextEditingController propertyTypeController;
+  final TextEditingController loanAmountController;
+  final TextEditingController leftBehindItemsController;
+
+  Page2({
+    required this.propertyTypeController,
+    required this.loanAmountController,
+    required this.leftBehindItemsController,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -196,9 +226,10 @@ class Page2 extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Inheritance Details', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          Text('Inheritance Details',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           TextFormField(
-            controller: _propertyTypeController,
+            controller: propertyTypeController,
             decoration: InputDecoration(
               labelText: 'Property Type',
             ),
@@ -211,7 +242,7 @@ class Page2 extends StatelessWidget {
           ),
           SizedBox(height: 10),
           TextFormField(
-            controller: _loanAmountController,
+            controller: loanAmountController,
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
               labelText: 'Loan Amount',
@@ -225,16 +256,10 @@ class Page2 extends StatelessWidget {
           ),
           SizedBox(height: 10),
           TextFormField(
-            controller: _leftBehindItemsController,
+            controller: leftBehindItemsController,
             decoration: InputDecoration(
               labelText: 'Left Behind Items',
             ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter the left behind items';
-              }
-              return null;
-            },
           ),
         ],
       ),
@@ -242,18 +267,16 @@ class Page2 extends StatelessWidget {
   }
 }
 
-class Page3 extends StatelessWidget {
-  final List<Heir> heirs = [
-    Heir(name: 'Son', count: 0),
-    Heir(name: 'Daughter', count: 0),
-    Heir(name: 'Father', count: 0),
-    Heir(name: 'Mother', count: 0),
-    Heir(name: 'Full Brother', count: 0),
-    Heir(name: 'Full Sister', count: 0),
-    Heir(name: 'Husband', count: 0),
-    Heir(name: 'Wife', count: 0),
-  ];
+class Page3 extends StatefulWidget {
+  final List<Heir> heirs;
 
+  Page3({required this.heirs});
+
+  @override
+  _Page3State createState() => _Page3State();
+}
+
+class _Page3State extends State<Page3> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -261,35 +284,18 @@ class Page3 extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Heirs Information', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          Text('Heirs Information',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           SizedBox(height: 10),
-          ListView.builder(
-            shrinkWrap: true,
-            itemCount: heirs.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(heirs[index].name),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        // Decrement count
-                        // You can also add validation to prevent negative count
-                      },
-                      icon: Icon(Icons.remove),
-                    ),
-                    Text(heirs[index].count.toString()),
-                    IconButton(
-                      onPressed: () {
-                        // Increment count
-                      },
-                      icon: Icon(Icons.add),
-                    ),
-                  ],
-                ),
-              );
-            },
+          Expanded(
+            child: ListView.builder(
+              itemCount: widget.heirs.length,
+              itemBuilder: (context, index) {
+                return HeirRow(
+                  heir: widget.heirs[index],
+                );
+              },
+            ),
           ),
         ],
       ),
@@ -301,6 +307,44 @@ class Heir {
   final String name;
   int count;
 
-  Heir({required this.name, required this.count});
+  Heir({required this.name, this.count = 0});
 }
 
+class HeirRow extends StatefulWidget {
+  final Heir heir;
+
+  HeirRow({required this.heir});
+
+  @override
+  _HeirRowState createState() => _HeirRowState();
+}
+
+class _HeirRowState extends State<HeirRow> {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(child: Text(widget.heir.name)),
+        IconButton(
+          onPressed: () {
+            setState(() {
+              if (widget.heir.count > 0) {
+                widget.heir.count--;
+              }
+            });
+          },
+          icon: Icon(Icons.remove),
+        ),
+        Text(widget.heir.count.toString()),
+        IconButton(
+          onPressed: () {
+            setState(() {
+              widget.heir.count++;
+            });
+          },
+          icon: Icon(Icons.add),
+        ),
+      ],
+    );
+  }
+}
