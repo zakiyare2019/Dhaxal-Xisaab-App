@@ -1,5 +1,6 @@
+import 'package:dhaxalxisaab/dhaxlayaal.dart';
 import 'package:flutter/material.dart';
-
+import 'register.dart';
 enum Gender { male, female }
 
 class MyApp extends StatelessWidget {
@@ -143,7 +144,10 @@ class _InheritanceCalculatorScreenState
                 }
               },
               child: _currentPage == pages.length - 1
-                  ? TextButton(onPressed: null, child: Text("calculate"))
+                  ? TextButton(
+                      onPressed: () => Navigator.of(context)
+                          .push(MaterialPageRoute(builder: (context) => InheritanceScreen(jsonData: ))),
+                      child: Text("calculate"))
                   : Text('Next'),
             ),
           ],
