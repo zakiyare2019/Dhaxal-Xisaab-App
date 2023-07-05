@@ -1,6 +1,9 @@
+import 'dart:convert';
+import 'result.dart' as result;
 import 'package:dhaxalxisaab/dhaxlayaal.dart';
 import 'package:flutter/material.dart';
 import 'register.dart';
+
 enum Gender { male, female }
 
 class MyApp extends StatelessWidget {
@@ -72,23 +75,81 @@ class _InheritanceCalculatorScreenState
   }
 
   void _calculateInheritance() {
-    // Perform the inheritance calculation using the collected data
-    // and display the result to the user
-    // You can access the collected data using the TextEditingController instances
-    // and other variables
-    // For simplicity, let's just print the data to the console for now
-    print('Deceased Name: ${_deceasedNameController.text}');
-    print('Gender: $_selectedGender');
-    print('Property Type: ${_totalAmountController.text}');
-    print('Loan Amount: ${_loanAmountController.text}');
-    print('Left Behind Items: ${_willAmountController.text}');
-    print('Number of Children: ${_numberOfChildrenController.text}');
-    print('Number of Siblings: ${_numberOfSiblingsController.text}');
-    print('Has Will: ${_hasWillController.text}');
-    print('Debt Amount: ${_debtAmountController.text}');
-    for (var heir in heirs) {
-      print('${heir.name}: ${heir.count}');
+    var sons = heirs[0].count;
+    var daughters = heirs[1].count;
+    var fatherExists = heirs[2].count;
+    var motherExists = heirs[3].count;
+    var fullBrothers = heirs[4].count;
+    var sister = heirs[5].count;
+    var husband = heirs[6].count;
+    var wife = heirs[7].count;
+
+    double husbandShare = 0.0;
+    double wifeShare = 0.0;
+    double daughterShare = 0.0;
+    double fatherShare = 0.0;
+    double motherShare = 0.0;
+    double sonDaughterShare = 0.0;
+    double fullBrotherShare = 0.0;
+    double fullSisterShare = 0.0;
+
+    print(wife);
+
+    // Calculate husband's share
+    if (sons == 0 && daughterShare == 0) {
+      husbandShare = 0.5;
+    } else {
+      husbandShare = 0.25;
     }
+    // Calculate wife's share
+    if (sons == 0 && daughters == 0) {
+      wifeShare = 0.25;
+    } else {
+      wifeShare = 0.125;
+    }
+
+    // Calculate daughter's share
+    daughterShare = (1 / (sons + daughters)) * (0.5 - husbandShare - wifeShare);
+
+    // Calculate father's share
+    fatherShare = (1 / (sons + daughters)) * (0.125 - wifeShare);
+
+    // Calculate mother's share
+    motherShare = (1 / (sons + daughters)) * (0.125 - wifeShare);
+
+    // Calculate son/daughter share
+    sonDaughterShare = (1 / (sons + daughters)) * 0.5;
+
+    // Calculate full brother's share
+    if (fullBrothers > 0) {
+      fullBrotherShare = (1 / fullBrothers) * sonDaughterShare;
+    }
+
+    // Calculate full sister's share
+    if (sister > 0) {
+      fullSisterShare = (1 / sister) * sonDaughterShare;
+    }
+// Create a map of inheritance values
+    Map<String, double> inheritanceValues = {
+      'Husband Share': husbandShare,
+      'Wife Share': wifeShare,
+      'Daughter Share': daughterShare,
+      'Father Share': fatherShare,
+      'Mother Share': motherShare,
+      'Son/Daughter Share': sonDaughterShare,
+      'Full Brother Share': fullBrotherShare,
+      'Full Sister Share': fullSisterShare,
+    };
+
+    // Navigate to the InheritanceResultScreen and pass the inheritance values
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => MaterialApp(
+                    home: Scaffold(
+                  body:
+                      InheritanceScreen(jsonData: ),
+                ))));
   }
 
   List<Widget> pages = [];
@@ -131,25 +192,16 @@ class _InheritanceCalculatorScreenState
                 onPressed: _goToPreviousPage,
                 child: Text('Previous'),
               ),
-            if (_currentPage == 0) // Add this condition
-              SizedBox(width: 80), // Empty container to maintain spacing
-            ElevatedButton(
-              onPressed: () {
-                if (_currentPage == pages.length - 1) {
-                  // Last page, perform calculation
-                  _calculateInheritance();
-                } else {
-                  // Not the last page, go to next page
-                  _goToNextPage();
-                }
-              },
-              child: _currentPage == pages.length - 1
-                  ? TextButton(
-                      onPressed: () => Navigator.of(context)
-                          .push(MaterialPageRoute(builder: (context) => InheritanceScreen(jsonData: ))),
-                      child: Text("calculate"))
-                  : Text('Next'),
-            ),
+            if (_currentPage == pages.length - 1) // Add this condition
+              ElevatedButton(
+                onPressed: _calculateInheritance,
+                child: Text('Calculate'),
+              ),
+            if (_currentPage < pages.length - 1) // Add this condition
+              ElevatedButton(
+                onPressed: _goToNextPage,
+                child: Text('Next'),
+              ),
           ],
         ),
       ),
@@ -285,6 +337,19 @@ class Page2 extends StatelessWidget {
 class Page3 extends StatefulWidget {
   final List<Heir> heirs;
 
+  void convertHeirsToJson(List<Heir> heirs) {
+    Map<String, dynamic> jsonData = {
+      'heirs': heirs
+          .map((heir) => {'name': heir.name, 'count': heir.count})
+          .toList(),
+    };
+
+    String jsonString = jsonEncode(jsonData);
+    String finalJson = '{"heirs": $jsonString}';
+
+    print(finalJson);
+  }
+
   Page3({required this.heirs});
 
   @override
@@ -308,6 +373,10 @@ class _Page3State extends State<Page3> {
               itemBuilder: (context, index) {
                 return HeirRow(
                   heir: widget.heirs[index],
+                );
+                ElevatedButton(
+                  child: Text("taabo"),
+                  onPressed: null,
                 );
               },
             ),
