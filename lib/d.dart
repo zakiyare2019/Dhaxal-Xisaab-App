@@ -26,9 +26,9 @@ class _InheritanceCalculatorScreenState
   final PageController _pageController = PageController(initialPage: 0);
   Gender _selectedGender = Gender.male;
   TextEditingController _deceasedNameController = TextEditingController();
-  TextEditingController _propertyTypeController = TextEditingController();
+  TextEditingController _totalAmountController = TextEditingController();
   TextEditingController _loanAmountController = TextEditingController();
-  TextEditingController _leftBehindItemsController = TextEditingController();
+  TextEditingController _willAmountController = TextEditingController();
   TextEditingController _numberOfChildrenController = TextEditingController();
   TextEditingController _numberOfSiblingsController = TextEditingController();
   TextEditingController _hasWillController = TextEditingController();
@@ -78,9 +78,9 @@ class _InheritanceCalculatorScreenState
     // For simplicity, let's just print the data to the console for now
     print('Deceased Name: ${_deceasedNameController.text}');
     print('Gender: $_selectedGender');
-    print('Property Type: ${_propertyTypeController.text}');
+    print('Property Type: ${_totalAmountController.text}');
     print('Loan Amount: ${_loanAmountController.text}');
-    print('Left Behind Items: ${_leftBehindItemsController.text}');
+    print('Left Behind Items: ${_willAmountController.text}');
     print('Number of Children: ${_numberOfChildrenController.text}');
     print('Number of Siblings: ${_numberOfSiblingsController.text}');
     print('Has Will: ${_hasWillController.text}');
@@ -101,9 +101,9 @@ class _InheritanceCalculatorScreenState
         selectedGender: _selectedGender,
       ),
       Page2(
-        propertyTypeController: _propertyTypeController,
+        totalAmountController: _totalAmountController,
         loanAmountController: _loanAmountController,
-        leftBehindItemsController: _leftBehindItemsController,
+        willAmountController: _willAmountController,
       ),
       Page3(heirs: heirs),
     ];
@@ -143,7 +143,7 @@ class _InheritanceCalculatorScreenState
                 }
               },
               child: _currentPage == pages.length - 1
-                  ? Text('Calculate')
+                  ? TextButton(onPressed: null, child: Text("calculate"))
                   : Text('Next'),
             ),
           ],
@@ -209,14 +209,14 @@ class Page1 extends StatelessWidget {
 }
 
 class Page2 extends StatelessWidget {
-  final TextEditingController propertyTypeController;
+  final TextEditingController totalAmountController;
   final TextEditingController loanAmountController;
-  final TextEditingController leftBehindItemsController;
+  final TextEditingController willAmountController;
 
   Page2({
-    required this.propertyTypeController,
+    required this.totalAmountController,
     required this.loanAmountController,
-    required this.leftBehindItemsController,
+    required this.willAmountController,
   });
 
   @override
@@ -229,13 +229,13 @@ class Page2 extends StatelessWidget {
           Text('Inheritance Details',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           TextFormField(
-            controller: propertyTypeController,
+            controller: totalAmountController,
             decoration: InputDecoration(
-              labelText: 'Property Type',
+              labelText: 'Total Amount',
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Please enter the property type';
+                return 'Please enter the Total Amount';
               }
               return null;
             },
@@ -256,10 +256,21 @@ class Page2 extends StatelessWidget {
           ),
           SizedBox(height: 10),
           TextFormField(
-            controller: leftBehindItemsController,
+            controller: willAmountController,
             decoration: InputDecoration(
-              labelText: 'Left Behind Items',
+              labelText: 'Will Amount',
             ),
+            validator: (value) {
+              var f = double.parse(totalAmountController.text) -
+                  double.parse(loanAmountController.text) * (1 / 3);
+              if (value == null || value.isEmpty) {
+                return 'Please enter the will Amount';
+              }
+              if (double.parse(willAmountController.text) >= f) {
+                return 'The will Amount not greater than one third';
+              }
+              return null;
+            },
           ),
         ],
       ),
