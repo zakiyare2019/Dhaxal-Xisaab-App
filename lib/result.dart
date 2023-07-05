@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
-
+import 'package:flutter/services.dart';
 class Heir {
   final String name;
   final double share;
@@ -14,33 +14,20 @@ class Heir {
         share = double.parse(json['share'].toString());
 }
 
-class InheritanceScreen extends StatefulWidget {
-  final String jsonData;
+class InheritanceScreen extends StatelessWidget {
+  final List<Heir> heirs;
 
-  const InheritanceScreen({Key? key, required this.jsonData}) : super(key: key);
-
-  @override
-  _InheritanceScreenState createState() => _InheritanceScreenState();
-}
-
-class _InheritanceScreenState extends State<InheritanceScreen> {
-  late List<Heir> heirs;
-
-  @override
-  void initState() {
-    super.initState();
-    var jsonData = json.decode(widget.jsonData);
-    heirs = List<Heir>.from(jsonData['heirs'].map((x) => Heir.fromJson(x)));
-  }
+  const InheritanceScreen({Key? key, required this.heirs}) : super(key: key);
 
   Future<void> _printDocument() async {
     final pdf = pw.Document();
-    final font = await PdfGoogleFonts.nunitoExtraBold();
+    final fontData = await rootBundle.load('assets/fonts/Nunito-ExtraBold.ttf');
+    final font = pw.Font.ttf(fontData);
 
     pdf.addPage(
       pw.MultiPage(
         header: (pw.Context context) => pw.Text(
-          'Dhaxal Xisaab ',
+          'Dhaxal Xisaab',
           style: pw.TextStyle(
             font: font,
             fontSize: 35,
@@ -57,11 +44,11 @@ class _InheritanceScreenState extends State<InheritanceScreen> {
             ),
           ),
         ),
-        build: (context) => [
+        build: (pw.Context context) => [
           pw.Header(
             level: 0,
             child: pw.Text(
-              'Heirs and their shares',
+              'Heirs and Their Shares',
               style: pw.TextStyle(
                 font: font,
                 fontSize: 28,
@@ -82,7 +69,7 @@ class _InheritanceScreenState extends State<InheritanceScreen> {
             ),
             data: [
               ...heirs.map(
-                (heir) => [heir.name, '\$ ${heir.share}'],
+                (heir) => [heir.name, '\$ ${heir.share.toStringAsFixed(2)}'],
               ),
             ],
           ),
@@ -113,7 +100,7 @@ class _InheritanceScreenState extends State<InheritanceScreen> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              'Heirs and their shares:',
+              'Heirs and Their Shares:',
               style: TextStyle(
                 fontSize: 25.0,
                 fontWeight: FontWeight.bold,
@@ -127,7 +114,9 @@ class _InheritanceScreenState extends State<InheritanceScreen> {
                 final heir = heirs[index];
                 return Padding(
                   padding: const EdgeInsets.symmetric(
-                      vertical: 8.0, horizontal: 16.0),
+                    vertical: 8.0,
+                    horizontal: 16.0,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -139,19 +128,18 @@ class _InheritanceScreenState extends State<InheritanceScreen> {
                         ),
                       ),
                       Text(
-                        '\$ ${heir.share} ',
-                        style: TextStyle(
-                          fontSize: 18.0,
+                        '\$ ${heir.share.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            fontSize: 18.0,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              },
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ));
   }
 }

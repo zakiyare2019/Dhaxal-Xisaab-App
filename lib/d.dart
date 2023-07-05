@@ -84,6 +84,51 @@ class _InheritanceCalculatorScreenState
     var husband = heirs[6].count;
     var wife = heirs[7].count;
 
+    // double husbandShare = 0.0;
+    // double wifeShare = 0.0;
+    // double daughterShare = 0.0;
+    // double fatherShare = 0.0;
+    // double motherShare = 0.0;
+    // double sonDaughterShare = 0.0;
+    // double fullBrotherShare = 0.0;
+    // double fullSisterShare = 0.0;
+
+    // print(wife);
+
+    // // Calculate husband's share
+    // if (sons == 0 && daughterShare == 0) {
+    //   husbandShare = 0.5;
+    // } else {
+    //   husbandShare = 0.25;
+    // }
+    // // Calculate wife's share
+    // if (sons == 0 && daughters == 0) {
+    //   wifeShare = 0.25;
+    // } else {
+    //   wifeShare = 0.125;
+    // }
+
+    // // Calculate daughter's share
+    // daughterShare = (1 / (sons + daughters)) * (0.5 - husbandShare - wifeShare);
+
+    // // Calculate father's share
+    // fatherShare = (1 / (sons + daughters)) * (0.125 - wifeShare);
+
+    // // Calculate mother's share
+    // motherShare = (1 / (sons + daughters)) * (0.125 - wifeShare);
+
+    // // Calculate son/daughter share
+    // sonDaughterShare = (1 / (sons + daughters)) * 0.5;
+
+    // // Calculate full brother's share
+    // if (fullBrothers > 0) {
+    //   fullBrotherShare = (1 / fullBrothers) * sonDaughterShare;
+    // }
+
+    // // Calculate full sister's share
+    // if (sister > 0) {
+    //   fullSisterShare = (1 / sister) * sonDaughterShare;
+    // }
     double husbandShare = 0.0;
     double wifeShare = 0.0;
     double daughterShare = 0.0;
@@ -92,64 +137,30 @@ class _InheritanceCalculatorScreenState
     double sonDaughterShare = 0.0;
     double fullBrotherShare = 0.0;
     double fullSisterShare = 0.0;
-
-    print(wife);
-
-    // Calculate husband's share
-    if (sons == 0 && daughterShare == 0) {
-      husbandShare = 0.5;
-    } else {
-      husbandShare = 0.25;
-    }
-    // Calculate wife's share
-    if (sons == 0 && daughters == 0) {
-      wifeShare = 0.25;
-    } else {
-      wifeShare = 0.125;
-    }
-
-    // Calculate daughter's share
-    daughterShare = (1 / (sons + daughters)) * (0.5 - husbandShare - wifeShare);
-
-    // Calculate father's share
-    fatherShare = (1 / (sons + daughters)) * (0.125 - wifeShare);
-
-    // Calculate mother's share
-    motherShare = (1 / (sons + daughters)) * (0.125 - wifeShare);
-
-    // Calculate son/daughter share
-    sonDaughterShare = (1 / (sons + daughters)) * 0.5;
-
-    // Calculate full brother's share
-    if (fullBrothers > 0) {
-      fullBrotherShare = (1 / fullBrothers) * sonDaughterShare;
-    }
-
-    // Calculate full sister's share
-    if (sister > 0) {
-      fullSisterShare = (1 / sister) * sonDaughterShare;
-    }
 // Create a map of inheritance values
-    Map<String, double> inheritanceValues = {
-      'Husband Share': husbandShare,
-      'Wife Share': wifeShare,
-      'Daughter Share': daughterShare,
-      'Father Share': fatherShare,
-      'Mother Share': motherShare,
-      'Son/Daughter Share': sonDaughterShare,
-      'Full Brother Share': fullBrotherShare,
-      'Full Sister Share': fullSisterShare,
+    Map<String, dynamic> inheritanceValues = {
+      'heirs': [
+        {'name': 'Husband Share', 'share': husbandShare},
+        {'name': 'Wife Share', 'share': wifeShare},
+        {'name': 'Daughter Share', 'share': daughterShare},
+        {'name': 'Father Share', 'share': fatherShare},
+        {'name': 'Mother Share', 'share': motherShare},
+        {'name': 'Full Brother Share', 'share': fullBrotherShare},
+        {'name': 'Full Sister Share', 'share': fullSisterShare},
+      ],
     };
+
+    // String jjj = "{'heirs':[ " + inheritanceValues.toString() + "]}";
+    
 
     // Navigate to the InheritanceResultScreen and pass the inheritance values
     Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => MaterialApp(
-                    home: Scaffold(
-                  body:
-                      InheritanceScreen(jsonData: ),
-                ))));
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            InheritanceScreen(jsonData: jsonEncode(inheritanceValues)),
+      ),
+    );
   }
 
   List<Widget> pages = [];
@@ -336,19 +347,6 @@ class Page2 extends StatelessWidget {
 
 class Page3 extends StatefulWidget {
   final List<Heir> heirs;
-
-  void convertHeirsToJson(List<Heir> heirs) {
-    Map<String, dynamic> jsonData = {
-      'heirs': heirs
-          .map((heir) => {'name': heir.name, 'count': heir.count})
-          .toList(),
-    };
-
-    String jsonString = jsonEncode(jsonData);
-    String finalJson = '{"heirs": $jsonString}';
-
-    print(finalJson);
-  }
 
   Page3({required this.heirs});
 
