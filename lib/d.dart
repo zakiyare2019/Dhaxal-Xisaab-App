@@ -1,8 +1,6 @@
+import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'result.dart' as result;
-import 'package:dhaxalxisaab/dhaxlayaal.dart';
-import 'package:flutter/material.dart';
-import 'register.dart';
 
 enum Gender { male, female }
 
@@ -11,9 +9,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Inheritance Calculator',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData(primarySwatch: Colors.blue, errorColor: Colors.red),
       home: InheritanceCalculatorScreen(),
     );
   }
@@ -37,7 +33,10 @@ class _InheritanceCalculatorScreenState
   TextEditingController _numberOfSiblingsController = TextEditingController();
   TextEditingController _hasWillController = TextEditingController();
   TextEditingController _debtAmountController = TextEditingController();
-
+  GlobalKey<FormState> _page1FormKey =
+      GlobalKey<FormState>(); // Form key for Page1
+  GlobalKey<FormState> _page2FormKey =
+      GlobalKey<FormState>(); // Form key for Page2
   List<Heir> heirs = [
     Heir(name: 'Son', count: 0),
     Heir(name: 'Daughter', count: 0),
@@ -74,6 +73,15 @@ class _InheritanceCalculatorScreenState
     });
   }
 
+  bool _validatePage(int pageIndex) {
+  if (pageIndex == 0) {
+    return _page1FormKey.currentState?.validate() ?? false;
+  } else if (pageIndex == 1) {
+    return _page2FormKey.currentState?.validate() ?? false;
+  }
+  return true;
+}
+
   void _calculateInheritance() {
     var sons = heirs[0].count;
     var daughters = heirs[1].count;
@@ -84,51 +92,6 @@ class _InheritanceCalculatorScreenState
     var husband = heirs[6].count;
     var wife = heirs[7].count;
 
-    // double husbandShare = 0.0;
-    // double wifeShare = 0.0;
-    // double daughterShare = 0.0;
-    // double fatherShare = 0.0;
-    // double motherShare = 0.0;
-    // double sonDaughterShare = 0.0;
-    // double fullBrotherShare = 0.0;
-    // double fullSisterShare = 0.0;
-
-    // print(wife);
-
-    // // Calculate husband's share
-    // if (sons == 0 && daughterShare == 0) {
-    //   husbandShare = 0.5;
-    // } else {
-    //   husbandShare = 0.25;
-    // }
-    // // Calculate wife's share
-    // if (sons == 0 && daughters == 0) {
-    //   wifeShare = 0.25;
-    // } else {
-    //   wifeShare = 0.125;
-    // }
-
-    // // Calculate daughter's share
-    // daughterShare = (1 / (sons + daughters)) * (0.5 - husbandShare - wifeShare);
-
-    // // Calculate father's share
-    // fatherShare = (1 / (sons + daughters)) * (0.125 - wifeShare);
-
-    // // Calculate mother's share
-    // motherShare = (1 / (sons + daughters)) * (0.125 - wifeShare);
-
-    // // Calculate son/daughter share
-    // sonDaughterShare = (1 / (sons + daughters)) * 0.5;
-
-    // // Calculate full brother's share
-    // if (fullBrothers > 0) {
-    //   fullBrotherShare = (1 / fullBrothers) * sonDaughterShare;
-    // }
-
-    // // Calculate full sister's share
-    // if (sister > 0) {
-    //   fullSisterShare = (1 / sister) * sonDaughterShare;
-    // }
     double husbandShare = 0.0;
     double wifeShare = 0.0;
     double daughterShare = 0.0;
@@ -137,7 +100,57 @@ class _InheritanceCalculatorScreenState
     double sonDaughterShare = 0.0;
     double fullBrotherShare = 0.0;
     double fullSisterShare = 0.0;
-// Create a map of inheritance values
+
+    print(wife);
+
+    // Calculate husband's share
+    if (sons == 0 && daughters == 0) {
+      husbandShare = 0.5 * double.parse(_totalAmountController.text);
+    } else {
+      husbandShare = 0.25 * double.parse(_totalAmountController.text);
+    }
+    // Calculate wife's share
+    if (sons == 0 && daughters == 0) {
+      wifeShare = 0.25;
+    } else {
+      wifeShare = 0.125 * double.parse(_totalAmountController.text);
+    }
+
+    // Calculate daughter's share
+    daughterShare = (1 / (sons + daughters)) *
+        (0.5 - husbandShare - wifeShare) *
+        double.parse(_totalAmountController.text);
+
+    // Calculate father's share
+    fatherShare = (1 / (sons + daughters)) *
+        (0.125 - wifeShare) *
+        double.parse(_totalAmountController.text);
+
+    // Calculate mother's share
+    motherShare = (1 / (sons + daughters)) *
+        (0.125 - wifeShare) *
+        double.parse(_totalAmountController.text);
+
+    // Calculate son/daughter share
+    sonDaughterShare = (1 / (sons + daughters)) *
+        0.5 *
+        double.parse(_totalAmountController.text);
+
+    // Calculate full brother's share
+    if (fullBrothers > 0) {
+      fullBrotherShare = (1 / fullBrothers) *
+          sonDaughterShare *
+          double.parse(_totalAmountController.text);
+    }
+
+    // Calculate full sister's share
+    if (sister > 0) {
+      fullSisterShare = (1 / sister) *
+          sonDaughterShare *
+          double.parse(_totalAmountController.text);
+    }
+
+    // Create a map of inheritance values
     Map<String, dynamic> inheritanceValues = {
       'heirs': [
         {'name': 'Husband Share', 'share': husbandShare},
@@ -150,15 +163,21 @@ class _InheritanceCalculatorScreenState
       ],
     };
 
-    // String jjj = "{'heirs':[ " + inheritanceValues.toString() + "]}";
-    
-
     // Navigate to the InheritanceResultScreen and pass the inheritance values
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            InheritanceScreen(jsonData: jsonEncode(inheritanceValues)),
+        builder: (context) => result.InheritanceScreen(
+          jsonData: jsonEncode(inheritanceValues),
+          totalvalue: (double.parse(_totalAmountController.text) -
+                  double.parse(_loanAmountController.text) -
+                  double.parse(_willAmountController.text))
+              .toString(),
+          loadAmount: _loanAmountController.text,
+          willAmount: _willAmountController.text,
+          name: _deceasedNameController.text,
+          gender: _selectedGender.toString(),
+        ),
       ),
     );
   }
@@ -170,10 +189,12 @@ class _InheritanceCalculatorScreenState
     super.initState();
     pages = [
       Page1(
+        formKey: _page1FormKey,
         deceasedNameController: _deceasedNameController,
         selectedGender: _selectedGender,
       ),
       Page2(
+        formKey: _page1FormKey,
         totalAmountController: _totalAmountController,
         loanAmountController: _loanAmountController,
         willAmountController: _willAmountController,
@@ -210,7 +231,11 @@ class _InheritanceCalculatorScreenState
               ),
             if (_currentPage < pages.length - 1) // Add this condition
               ElevatedButton(
-                onPressed: _goToNextPage,
+                onPressed: () {
+                  if (_validatePage(_currentPage)) {
+                    _goToNextPage();
+                  }
+                },
                 child: Text('Next'),
               ),
           ],
@@ -221,10 +246,15 @@ class _InheritanceCalculatorScreenState
 }
 
 class Page1 extends StatelessWidget {
+  final GlobalKey<FormState> formKey;
   final TextEditingController deceasedNameController;
   final Gender selectedGender;
 
-  Page1({required this.deceasedNameController, required this.selectedGender});
+  Page1({
+    required this.formKey,
+    required this.deceasedNameController,
+    required this.selectedGender,
+  });
 
   final List<DropdownMenuItem<Gender>> genderItems = [
     DropdownMenuItem<Gender>(
@@ -239,48 +269,67 @@ class Page1 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Deceased Information',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          TextFormField(
-            controller: deceasedNameController,
-            decoration: InputDecoration(
-              labelText: 'Name',
+    return Form(
+      key: formKey,
+      child: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Deceased Information',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter the deceased name';
-              }
-              return null;
-            },
-          ),
-          SizedBox(height: 10),
-          DropdownButtonFormField<Gender>(
-            value: selectedGender,
-            onChanged: (value) {
-              // Handle gender selection
-            },
-            decoration: InputDecoration(
-              labelText: 'Gender',
+            TextFormField(
+              controller: deceasedNameController,
+              decoration: InputDecoration(
+                label: Text("Name"),
+                errorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                ),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter the deceased name';
+                }
+                return null;
+              },
             ),
-            items: genderItems,
-          ),
-        ],
+            SizedBox(height: 10),
+            DropdownButtonFormField<Gender>(
+              value: selectedGender,
+              items: genderItems,
+              onChanged: (value) {
+                // Handle gender selection
+              },
+              decoration: InputDecoration(
+                labelText: 'Gender',
+                errorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                ),
+              ),
+              validator: (value) {
+                if (value == null) {
+                  return 'Please select a gender';
+                }
+                return null;
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
 class Page2 extends StatelessWidget {
+  final GlobalKey<FormState> formKey;
   final TextEditingController totalAmountController;
   final TextEditingController loanAmountController;
   final TextEditingController willAmountController;
 
   Page2({
+    required this.formKey,
     required this.totalAmountController,
     required this.loanAmountController,
     required this.willAmountController,
@@ -288,73 +337,77 @@ class Page2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Inheritance Details',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          TextFormField(
-            controller: totalAmountController,
-            decoration: InputDecoration(
-              labelText: 'Total Amount',
+    return Form(
+      key: formKey,
+      child: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Financial Information',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter the Total Amount';
-              }
-              return null;
-            },
-          ),
-          SizedBox(height: 10),
-          TextFormField(
-            controller: loanAmountController,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-              labelText: 'Loan Amount',
+            TextFormField(
+              controller: totalAmountController,
+              decoration: InputDecoration(
+                labelText: 'Total Amount',
+                errorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                ),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter the total amount';
+                }
+                return null;
+              },
+              keyboardType: TextInputType.number,
             ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter the loan amount';
-              }
-              return null;
-            },
-          ),
-          SizedBox(height: 10),
-          TextFormField(
-            controller: willAmountController,
-            decoration: InputDecoration(
-              labelText: 'Will Amount',
+            SizedBox(height: 10),
+            TextFormField(
+              controller: loanAmountController,
+              decoration: InputDecoration(
+                  labelText: 'Loan Amount',
+                  errorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.red),
+                  )),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter the loan amount';
+                }
+                return null;
+              },
+              keyboardType: TextInputType.number,
             ),
-            validator: (value) {
-              var f = double.parse(totalAmountController.text) -
-                  double.parse(loanAmountController.text) * (1 / 3);
-              if (value == null || value.isEmpty) {
-                return 'Please enter the will Amount';
-              }
-              if (double.parse(willAmountController.text) >= f) {
-                return 'The will Amount not greater than one third';
-              }
-              return null;
-            },
-          ),
-        ],
+            SizedBox(height: 10),
+            TextFormField(
+              controller: willAmountController,
+              decoration: InputDecoration(
+                  labelText: 'Will Amount',
+                  errorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.red),
+                  )),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter the will amount';
+                }
+                return null;
+              },
+              keyboardType: TextInputType.number,
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-class Page3 extends StatefulWidget {
+class Page3 extends StatelessWidget {
   final List<Heir> heirs;
 
   Page3({required this.heirs});
 
-  @override
-  _Page3State createState() => _Page3State();
-}
-
-class _Page3State extends State<Page3> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -362,22 +415,44 @@ class _Page3State extends State<Page3> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Heirs Information',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          Text(
+            'Heirs Information',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
           SizedBox(height: 10),
-          Expanded(
-            child: ListView.builder(
-              itemCount: widget.heirs.length,
-              itemBuilder: (context, index) {
-                return HeirRow(
-                  heir: widget.heirs[index],
-                );
-                ElevatedButton(
-                  child: Text("taabo"),
-                  onPressed: null,
-                );
-              },
-            ),
+          Text(
+            'Enter the number of heirs:',
+            style: TextStyle(fontSize: 16),
+          ),
+          SizedBox(height: 10),
+          ListView.builder(
+            shrinkWrap: true,
+            itemCount: heirs.length,
+            itemBuilder: (context, index) {
+              return Row(
+                children: [
+                  Expanded(
+                    child: Text(heirs[index].name),
+                  ),
+                  SizedBox(width: 10),
+                  IconButton(
+                    icon: Icon(Icons.remove),
+                    onPressed: () {
+                      if (heirs[index].count > 0) {
+                        heirs[index].count--;
+                      }
+                    },
+                  ),
+                  Text(heirs[index].count.toString()),
+                  IconButton(
+                    icon: Icon(Icons.add),
+                    onPressed: () {
+                      heirs[index].count++;
+                    },
+                  ),
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -386,47 +461,8 @@ class _Page3State extends State<Page3> {
 }
 
 class Heir {
-  final String name;
+  String name;
   int count;
 
-  Heir({required this.name, this.count = 0});
-}
-
-class HeirRow extends StatefulWidget {
-  final Heir heir;
-
-  HeirRow({required this.heir});
-
-  @override
-  _HeirRowState createState() => _HeirRowState();
-}
-
-class _HeirRowState extends State<HeirRow> {
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(child: Text(widget.heir.name)),
-        IconButton(
-          onPressed: () {
-            setState(() {
-              if (widget.heir.count > 0) {
-                widget.heir.count--;
-              }
-            });
-          },
-          icon: Icon(Icons.remove),
-        ),
-        Text(widget.heir.count.toString()),
-        IconButton(
-          onPressed: () {
-            setState(() {
-              widget.heir.count++;
-            });
-          },
-          icon: Icon(Icons.add),
-        ),
-      ],
-    );
-  }
+  Heir({required this.name, required this.count});
 }

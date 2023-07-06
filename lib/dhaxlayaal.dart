@@ -40,7 +40,7 @@ class _InheritanceScreenState extends State<InheritanceScreen> {
   }
 
   void calculateIslamicInheritance() {
-    final double estateValue = 100000; // Example estate value
+    final double estateValue = 100; // Example estate value
 
     // Define the shares for each heir
     double son = 2;
