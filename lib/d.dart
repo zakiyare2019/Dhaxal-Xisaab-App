@@ -194,7 +194,7 @@ class _InheritanceCalculatorScreenState
         selectedGender: _selectedGender,
       ),
       Page2(
-        formKey: _page1FormKey,
+        formKey: _page2FormKey,
         totalAmountController: _totalAmountController,
         loanAmountController: _loanAmountController,
         willAmountController: _willAmountController,
