@@ -8,7 +8,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Inheritance Calculator',
+      title: 'DhaxalXisaab',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.blue, errorColor: Colors.red),
       home: InheritanceCalculatorScreen(),
     );
@@ -74,13 +75,13 @@ class _InheritanceCalculatorScreenState
   }
 
   bool _validatePage(int pageIndex) {
-  if (pageIndex == 0) {
-    return _page1FormKey.currentState?.validate() ?? false;
-  } else if (pageIndex == 1) {
-    return _page2FormKey.currentState?.validate() ?? false;
+    if (pageIndex == 0) {
+      return _page1FormKey.currentState?.validate() ?? false;
+    } else if (pageIndex == 1) {
+      return _page2FormKey.currentState?.validate() ?? false;
+    }
+    return true;
   }
-  return true;
-}
 
   void _calculateInheritance() {
     var sons = heirs[0].count;
@@ -97,57 +98,53 @@ class _InheritanceCalculatorScreenState
     double daughterShare = 0.0;
     double fatherShare = 0.0;
     double motherShare = 0.0;
-    double sonDaughterShare = 0.0;
+
     double fullBrotherShare = 0.0;
     double fullSisterShare = 0.0;
 
-    print(wife);
-
     // Calculate husband's share
     if (sons == 0 && daughters == 0) {
-      husbandShare = 0.5 * double.parse(_totalAmountController.text);
+      husbandShare = 0.5 * husband * double.parse(_totalAmountController.text);
     } else {
-      husbandShare = 0.25 * double.parse(_totalAmountController.text);
+      husbandShare = 0.25 * husband * double.parse(_totalAmountController.text);
     }
     // Calculate wife's share
     if (sons == 0 && daughters == 0) {
-      wifeShare = 0.25;
+      wifeShare = 0.25 * wife * double.parse(_totalAmountController.text);
     } else {
-      wifeShare = 0.125 * double.parse(_totalAmountController.text);
+      wifeShare = 0.125 * wife * double.parse(_totalAmountController.text);
     }
 
     // Calculate daughter's share
-    daughterShare = (1 / (sons + daughters)) *
-        (0.5 - husbandShare - wifeShare) *
-        double.parse(_totalAmountController.text);
-
+    if (daughters == 1 && sons == 0) {
+      daughterShare = 0.5 * double.parse(_totalAmountController.text);
+    } else if (daughters > 1 && sons == 0) {
+      daughterShare =
+          (2 / 3) / daughters * double.parse(_totalAmountController.text);
+    }
     // Calculate father's share
-    fatherShare = (1 / (sons + daughters)) *
-        (0.125 - wifeShare) *
-        double.parse(_totalAmountController.text);
+    fatherShare = (1 / 6) * double.parse(_totalAmountController.text);
 
     // Calculate mother's share
-    motherShare = (1 / (sons + daughters)) *
-        (0.125 - wifeShare) *
-        double.parse(_totalAmountController.text);
-
-    // Calculate son/daughter share
-    sonDaughterShare = (1 / (sons + daughters)) *
-        0.5 *
-        double.parse(_totalAmountController.text);
+    if (!(sister > 1 || fullBrothers > 1) && daughters == 0 && sons == 0) {
+      motherShare =
+          (1 / 3) * motherExists * double.parse(_totalAmountController.text);
+    } else {
+      motherShare =
+          (1 / 6) * motherExists * double.parse(_totalAmountController.text);
+    }
 
     // Calculate full brother's share
     if (fullBrothers > 0) {
-      fullBrotherShare = (1 / fullBrothers) *
-          sonDaughterShare *
-          double.parse(_totalAmountController.text);
+      fullBrotherShare =
+          (1 / fullBrothers) * 0 * double.parse(_totalAmountController.text);
     }
 
     // Calculate full sister's share
-    if (sister > 0) {
-      fullSisterShare = (1 / sister) *
-          sonDaughterShare *
-          double.parse(_totalAmountController.text);
+    if (sister == 1 && daughters == 0 && sons == 0) {
+      fullSisterShare = 0.5 * double.parse(_totalAmountController.text);
+    } else if (sister > 1 && daughters == 0 && sons == 0) {
+      fullSisterShare = (2 / 3) * double.parse(_totalAmountController.text);
     }
 
     // Create a map of inheritance values
@@ -207,7 +204,8 @@ class _InheritanceCalculatorScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Inheritance Calculator'),
+        title: Text('DhaxalXisaab'),
+        centerTitle: true,
       ),
       body: PageView(
         controller: _pageController,
@@ -403,58 +401,79 @@ class Page2 extends StatelessWidget {
   }
 }
 
-class Page3 extends StatelessWidget {
+class Page3 extends StatefulWidget {
   final List<Heir> heirs;
 
   Page3({required this.heirs});
 
   @override
+  _Page3State createState() => _Page3State();
+}
+
+class _Page3State extends State<Page3> {
+  @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Heirs Information',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+    return SingleChildScrollView(
+      // Add SingleChildScrollView here
+      child: ConstrainedBox(
+        // Add ConstrainedBox to give it a height
+        constraints: BoxConstraints(
+          minHeight: MediaQuery.of(context).size.height, // Set a minimum height
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Heirs Information',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Enter the number of heirs:',
+                style: TextStyle(fontSize: 16),
+              ),
+              SizedBox(height: 10),
+              ListView.separated(
+                physics:
+                    NeverScrollableScrollPhysics(), // Disable scrolling for ListView
+                shrinkWrap: true,
+                itemCount: widget.heirs.length,
+                itemBuilder: (context, index) {
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: Text(widget.heirs[index].name),
+                      ),
+                      SizedBox(width: 10),
+                      IconButton(
+                        icon: Icon(Icons.remove),
+                        onPressed: () {
+                          setState(() {
+                            if (widget.heirs[index].count > 0) {
+                              widget.heirs[index].count--;
+                            }
+                          });
+                        },
+                      ),
+                      Text(widget.heirs[index].count.toString()),
+                      IconButton(
+                        icon: Icon(Icons.add),
+                        onPressed: () {
+                          setState(() {
+                            widget.heirs[index].count++;
+                          });
+                        },
+                      ),
+                    ],
+                  );
+                },
+                separatorBuilder: (context, index) => SizedBox(height: 10),
+              ),
+            ],
           ),
-          SizedBox(height: 10),
-          Text(
-            'Enter the number of heirs:',
-            style: TextStyle(fontSize: 16),
-          ),
-          SizedBox(height: 10),
-          ListView.builder(
-            shrinkWrap: true,
-            itemCount: heirs.length,
-            itemBuilder: (context, index) {
-              return Row(
-                children: [
-                  Expanded(
-                    child: Text(heirs[index].name),
-                  ),
-                  SizedBox(width: 10),
-                  IconButton(
-                    icon: Icon(Icons.remove),
-                    onPressed: () {
-                      if (heirs[index].count > 0) {
-                        heirs[index].count--;
-                      }
-                    },
-                  ),
-                  Text(heirs[index].count.toString()),
-                  IconButton(
-                    icon: Icon(Icons.add),
-                    onPressed: () {
-                      heirs[index].count++;
-                    },
-                  ),
-                ],
-              );
-            },
-          ),
-        ],
+        ),
       ),
     );
   }
