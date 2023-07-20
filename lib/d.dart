@@ -1,3 +1,4 @@
+import 'package:dhaxalxisaab/dd.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'result.dart' as result;
@@ -21,6 +22,11 @@ class InheritanceCalculatorScreen extends StatefulWidget {
   _InheritanceCalculatorScreenState createState() =>
       _InheritanceCalculatorScreenState();
 }
+
+int _fatherStatusValue = 1;
+int _motherStatusValue = 1;
+int _husbanStatusValue = 0;
+int _wifeStatusValue = 0;
 
 class _InheritanceCalculatorScreenState
     extends State<InheritanceCalculatorScreen> {
@@ -84,23 +90,25 @@ class _InheritanceCalculatorScreenState
   }
 
   void _calculateInheritance() {
+    print("///////////////////////////  " + _husbanStatusValue.toString());
     var sons = heirs[0].count;
     var daughters = heirs[1].count;
-    var fatherExists = heirs[2].count;
-    var motherExists = heirs[3].count;
+    var fatherExists = _fatherStatusValue;
+    var motherExists = _motherStatusValue;
     var fullBrothers = heirs[4].count;
     var sister = heirs[5].count;
-    var husband = heirs[6].count;
-    var wife = heirs[7].count;
+    var husband = _husbanStatusValue;
+    var wife = _wifeStatusValue;
 
     double husbandShare = 0.0;
     double wifeShare = 0.0;
     double daughterShare = 0.0;
     double fatherShare = 0.0;
     double motherShare = 0.0;
-
+    double sonShare = 0.0;
     double fullBrotherShare = 0.0;
     double fullSisterShare = 0.0;
+    double remain = 0.0;
 
     // Calculate husband's share
     if (sons == 0 && daughters == 0) {
@@ -115,36 +123,74 @@ class _InheritanceCalculatorScreenState
       wifeShare = 0.125 * wife * double.parse(_totalAmountController.text);
     }
 
-    // Calculate daughter's share
-    if (daughters == 1 && sons == 0) {
-      daughterShare = 0.5 * double.parse(_totalAmountController.text);
-    } else if (daughters > 1 && sons == 0) {
-      daughterShare =
-          (2 / 3) / daughters * double.parse(_totalAmountController.text);
+// Calculate father's share
+    if (sons == 0 && daughters == 0 && (husband == 0 || wife == 0)) {
+      if (motherExists == 1) {
+        fatherShare = (double.parse(_totalAmountController.text) -
+                (double.parse(_totalAmountController.text) * 1 / 3)) *
+            fatherExists;
+      } else {
+        fatherShare = double.parse(_totalAmountController.text) * fatherExists;
+      }
+    } else {
+      fatherShare =
+          double.parse(_totalAmountController.text) * (1 / 6) * fatherExists;
     }
-    // Calculate father's share
-    fatherShare = (1 / 6) * double.parse(_totalAmountController.text);
 
     // Calculate mother's share
-    if (!(sister > 1 || fullBrothers > 1) && daughters == 0 && sons == 0) {
+
+    if ((sons > 0 || daughters > 0) || fullBrothers > 1) {
       motherShare =
-          (1 / 3) * motherExists * double.parse(_totalAmountController.text);
+          motherExists * double.parse(_totalAmountController.text) * (1 / 6);
     } else {
       motherShare =
-          (1 / 6) * motherExists * double.parse(_totalAmountController.text);
+          motherExists * double.parse(_totalAmountController.text) * (1 / 3);
     }
 
-    // Calculate full brother's share
-    if (fullBrothers > 0) {
-      fullBrotherShare =
-          (1 / fullBrothers) * 0 * double.parse(_totalAmountController.text);
+    var total = fatherShare + motherShare + husbandShare + wifeShare;
+    remain = double.parse(_totalAmountController.text) - total;
+    int sondaughtershares = (2 * sons) + daughters;
+// Calculate son's share
+    if (sons > 0 && daughters == 0) {
+      sonShare = remain / sons;
+    } else if (sons > 1 && daughters == 0) {
+      sonShare = remain / ((2 * sons) + daughters);
+    } else if (sons >= 1 && daughters >= 1) {
+      sonShare = ((remain / sondaughtershares * 2)) * sons;
     }
 
+    // Calculate daughter's share
+    if (daughters == 1 && sons == 0) {
+      daughterShare = 0.5 * remain;
+    } else if (daughters > 1 && sons == 0) {
+      daughterShare = (2 / 3) * remain;
+    } else if (daughters >= 1 && sons >= 1) {
+      daughterShare = (remain / sondaughtershares) * daughters;
+    }
     // Calculate full sister's share
-    if (sister == 1 && daughters == 0 && sons == 0) {
-      fullSisterShare = 0.5 * double.parse(_totalAmountController.text);
-    } else if (sister > 1 && daughters == 0 && sons == 0) {
-      fullSisterShare = (2 / 3) * double.parse(_totalAmountController.text);
+    if (daughters == 0 && sons == 0 && fullBrothers == 0 && sister == 1) {
+      fullSisterShare = 0.5 * remain;
+    } else if (daughters == 0 && sons == 0 && fullBrothers == 0 && sister > 1) {
+      fullSisterShare = (2 / 3) * remain;
+    } else if (daughters == 0 &&
+        sons == 0 &&
+        fullBrothers >= 1 &&
+        sister >= 1) {
+      fullSisterShare = (remain / ((2 * fullBrothers) + daughters)) * sister;
+    }
+    // Calculate daughter's share
+    if (daughters == 0 && sons == 0 && fullBrothers == 1 && sister == 0) {
+      sonShare = remain / sons;
+    } else if (daughters == 0 &&
+        sons == 0 &&
+        fullBrothers >= 1 &&
+        sister == 0) {
+      sonShare = remain / ((2 * fullBrothers) + daughters);
+    } else if (daughters == 0 &&
+        sons == 0 &&
+        fullBrothers >= 1 &&
+        sister >= 1) {
+      sonShare = ((remain / ((2 * fullBrothers) + daughters) * 2)) * sons;
     }
 
     // Create a map of inheritance values
@@ -152,6 +198,7 @@ class _InheritanceCalculatorScreenState
       'heirs': [
         {'name': 'Husband Share', 'share': husbandShare},
         {'name': 'Wife Share', 'share': wifeShare},
+        {'name': 'Son Share', 'share': sonShare},
         {'name': 'Daughter Share', 'share': daughterShare},
         {'name': 'Father Share', 'share': fatherShare},
         {'name': 'Mother Share', 'share': motherShare},
@@ -159,7 +206,7 @@ class _InheritanceCalculatorScreenState
         {'name': 'Full Sister Share', 'share': fullSisterShare},
       ],
     };
-
+    print("=======================" + inheritanceValues.toString());
     // Navigate to the InheritanceResultScreen and pass the inheritance values
     Navigator.push(
       context,
@@ -411,6 +458,8 @@ class Page3 extends StatefulWidget {
 }
 
 class _Page3State extends State<Page3> {
+  // Default value is 1, which means "Alive."
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -431,7 +480,118 @@ class _Page3State extends State<Page3> {
               ),
               SizedBox(height: 10),
               Text(
-                'Enter the number of heirs:',
+                "Is Father Live",
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
+              ListTile(
+                title: const Text('Yes'),
+                leading: Radio(
+                  // Change the generic type argument to int
+                  value: 1,
+                  groupValue: _fatherStatusValue,
+                  onChanged: (value) {
+                    setState(() {
+                      _fatherStatusValue = value!;
+                    });
+                  },
+                ),
+              ),
+              ListTile(
+                title: const Text('No'),
+                leading: Radio(
+                  // Change the generic type argument to int
+                  value: 0,
+                  groupValue: _fatherStatusValue,
+                  onChanged: (value) {
+                    setState(() {
+                      _fatherStatusValue = value!;
+                    });
+                  },
+                ),
+              ),
+              SizedBox(height: 10),
+              SizedBox(height: 10),
+              Text(
+                "Is Mother Live",
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
+              ListTile(
+                title: const Text('Yes'),
+                leading: Radio(
+                  // Change the generic type argument to int
+                  value: 1,
+                  groupValue: _motherStatusValue,
+                  onChanged: (value) {
+                    setState(() {
+                      _motherStatusValue = value!;
+                    });
+                  },
+                ),
+              ),
+              ListTile(
+                title: const Text('No'),
+                leading: Radio(
+                  // Change the generic type argument to int
+                  value: 0,
+                  groupValue: _motherStatusValue,
+                  onChanged: (value) {
+                    setState(() {
+                      _motherStatusValue = value!;
+                    });
+                  },
+                ),
+              ),
+              SizedBox(height: 10),
+              Text(
+                "who is died",
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
+              ListTile(
+                title: const Text('Husban'),
+                leading: Radio(
+                  // Change the generic type argument to int
+                  value: 1,
+                  groupValue: _husbanStatusValue,
+                  onChanged: (value) {
+                    setState(() {
+                      if (value == 1) {
+                        _husbanStatusValue = 1;
+                        _wifeStatusValue = 0;
+                      } else {
+                        _husbanStatusValue = 0;
+                        _wifeStatusValue = 1;
+                      }
+                    });
+                  },
+                ),
+              ),
+              ListTile(
+                title: const Text('Wife'),
+                leading: Radio(
+                  // Change the generic type argument to int
+                  value: 0,
+                  groupValue: _husbanStatusValue,
+                  onChanged: (value) {
+                    setState(() {
+                      if (value == 0) {
+                        _husbanStatusValue = 0;
+                        _wifeStatusValue = 1;
+                      } else {
+                        _husbanStatusValue = 1;
+                        _wifeStatusValue = 0;
+                      }
+                    });
+                  },
+                ),
+              ),
+              Text(
+                'Fill the number another  heirs:',
                 style: TextStyle(fontSize: 16),
               ),
               SizedBox(height: 10),

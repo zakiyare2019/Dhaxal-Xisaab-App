@@ -199,7 +199,8 @@ class _InheritanceScreenState extends State<InheritanceScreen> {
 
   Future<void> _printDocument() async {
     final pdf = pw.Document();
-    final font = await PdfGoogleFonts.nunitoExtraBold();
+    // final font = await PdfGoogleFonts.nunitoExtraBold();
+    final font = await pw.Font.courierBoldOblique();
 
     pdf.addPage(
       pw.MultiPage(
@@ -214,7 +215,7 @@ class _InheritanceScreenState extends State<InheritanceScreen> {
           bottom: 0,
           right: 0,
           child: pw.Text(
-            'Page ${context.pageNumber}',
+            'Boga ${context.pageNumber}',
             style: pw.TextStyle(
               font: font,
               fontSize: 28,
@@ -230,6 +231,26 @@ class _InheritanceScreenState extends State<InheritanceScreen> {
                 font: font,
                 fontSize: 28,
                 fontWeight: pw.FontWeight.bold,
+              ),
+            ),
+          ),
+          pw.Header(
+            level: 2,
+            child: pw.Text(
+              'Date: ${DateTime.now().toString()}',
+              style: pw.TextStyle(
+                font: font,
+                fontSize: 20,
+              ),
+            ),
+          ),
+          pw.Header(
+            level: 2,
+            child: pw.Text(
+              'Name: ' + widget.name,
+              style: pw.TextStyle(
+                font: font,
+                fontSize: 20,
               ),
             ),
           ),
