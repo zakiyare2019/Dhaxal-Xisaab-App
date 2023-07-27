@@ -47,12 +47,12 @@ class _InheritanceCalculatorScreenState
   List<Heir> heirs = [
     Heir(name: 'Son', count: 0),
     Heir(name: 'Daughter', count: 0),
-    Heir(name: 'Father', count: 0),
-    Heir(name: 'Mother', count: 0),
     Heir(name: 'Full Brother', count: 0),
+    Heir(name: 'paternal Brother', count: 0),
+    Heir(name: 'maternal Brother', count: 0),
     Heir(name: 'Full Sister', count: 0),
-    Heir(name: 'Husband', count: 0),
-    Heir(name: 'Wife', count: 0),
+    Heir(name: 'paternal Sister', count: 0),
+    Heir(name: 'maternal Sister', count: 0),
   ];
 
   int _currentPage = 0;
@@ -90,15 +90,29 @@ class _InheritanceCalculatorScreenState
   }
 
   void _calculateInheritance() {
+    if (_husbanStatusValue == 1) {
+      _husbanStatusValue = 0;
+    } else {
+      _husbanStatusValue = 1;
+    }
+    if (_wifeStatusValue == 1) {
+      _wifeStatusValue = 0;
+    } else {
+      _wifeStatusValue = 1;
+    }
     print("///////////////////////////  " + _husbanStatusValue.toString());
-    var sons = heirs[0].count;
-    var daughters = heirs[1].count;
     var fatherExists = _fatherStatusValue;
     var motherExists = _motherStatusValue;
-    var fullBrothers = heirs[4].count;
-    var sister = heirs[5].count;
     var husband = _husbanStatusValue;
     var wife = _wifeStatusValue;
+    var sons = heirs[0].count;
+    var daughters = heirs[1].count;
+    var fullBrothers = heirs[2].count;
+    var paternalBrothers = heirs[3].count;
+    var maternalBrothers = heirs[4].count;
+    var sister = heirs[5].count;
+    var pateralSister = heirs[6].count;
+    var MaternalSister = heirs[7].count;
 
     double husbandShare = 0.0;
     double wifeShare = 0.0;
@@ -107,7 +121,11 @@ class _InheritanceCalculatorScreenState
     double motherShare = 0.0;
     double sonShare = 0.0;
     double fullBrotherShare = 0.0;
+    double paternalBrotherShare = 0.0;
+    double maternalBrotherShare = 0.0;
     double fullSisterShare = 0.0;
+    double paternalSisterShare = 0.0;
+    double maternalSisterShare = 0.0;
     double remain = 0.0;
 
     // Calculate husband's share
@@ -146,8 +164,29 @@ class _InheritanceCalculatorScreenState
       motherShare =
           motherExists * double.parse(_totalAmountController.text) * (1 / 3);
     }
+// Calculate maternal  share
+    if ((sons == 0 && daughters == 0) && fatherExists == 0) {
+      if (maternalBrothers == 1 && MaternalSister == 0) {
+        maternalBrotherShare =
+            ((1 / 6) * double.parse(_totalAmountController.text));
+      } else if (maternalBrothers == 0 && MaternalSister == 1) {
+        maternalSisterShare =
+            ((1 / 6) * double.parse(_totalAmountController.text));
+      } else {
+        var maternalchilds = MaternalSister + maternalBrothers;
+        double qeeb = ((1 / 3) * double.parse(_totalAmountController.text)) /
+            maternalchilds;
+        maternalSisterShare = qeeb * MaternalSister;
+        maternalBrotherShare = qeeb * maternalBrothers;
+      }
+    }
 
-    var total = fatherShare + motherShare + husbandShare + wifeShare;
+    var total = fatherShare +
+        motherShare +
+        husbandShare +
+        wifeShare +
+        maternalBrotherShare +
+        maternalSisterShare;
     remain = double.parse(_totalAmountController.text) - total;
     int sondaughtershares = (2 * sons) + daughters;
 // Calculate son's share
@@ -161,38 +200,80 @@ class _InheritanceCalculatorScreenState
 
     // Calculate daughter's share
     if (daughters == 1 && sons == 0) {
-      daughterShare = 0.5 * remain;
+      daughterShare = 0.5 * double.parse(_totalAmountController.text);
     } else if (daughters > 1 && sons == 0) {
-      daughterShare = (2 / 3) * remain;
+      daughterShare = (2 / 3) * double.parse(_totalAmountController.text);
     } else if (daughters >= 1 && sons >= 1) {
       daughterShare = (remain / sondaughtershares) * daughters;
     }
-    // Calculate full sister's share
-    if (daughters == 0 && sons == 0 && fullBrothers == 0 && sister == 1) {
-      fullSisterShare = 0.5 * remain;
-    } else if (daughters == 0 && sons == 0 && fullBrothers == 0 && sister > 1) {
-      fullSisterShare = (2 / 3) * remain;
-    } else if (daughters == 0 &&
-        sons == 0 &&
-        fullBrothers >= 1 &&
-        sister >= 1) {
-      fullSisterShare = (remain / ((2 * fullBrothers) + daughters)) * sister;
-    }
-    // Calculate daughter's share
-    if (daughters == 0 && sons == 0 && fullBrothers == 1 && sister == 0) {
-      sonShare = remain / sons;
-    } else if (daughters == 0 &&
-        sons == 0 &&
-        fullBrothers >= 1 &&
-        sister == 0) {
-      sonShare = remain / ((2 * fullBrothers) + daughters);
-    } else if (daughters == 0 &&
-        sons == 0 &&
-        fullBrothers >= 1 &&
-        sister >= 1) {
-      sonShare = ((remain / ((2 * fullBrothers) + daughters) * 2)) * sons;
+    var rmain2 = remain - (daughterShare + sonShare);
+    // Calculate full sister share
+    if (fatherExists == 0 && sons == 0 && daughters == 0) {
+      if (fullBrothers == 0 && sister == 1) {
+        fullSisterShare = 0.5 * double.parse(_totalAmountController.text);
+        rmain2 -= fullSisterShare;
+      } else if (fullBrothers == 0 && sister > 1) {
+        fullSisterShare = ((2 / 3) * double.parse(_totalAmountController.text));
+        rmain2 -= fullSisterShare;
+      } else if (fullBrothers >= 1 && sister >= 1) {
+        fullSisterShare = ((rmain2 / ((2 * fullBrothers) + sister))) * sister;
+      }
     }
 
+    // Calculate full brother share
+    if (fatherExists == 0 && sons == 0) {
+      if (fullBrothers == 1 && sister == 0) {
+        fullBrotherShare = rmain2;
+      } else if (fullBrothers > 1 && sister == 0) {
+        fullBrotherShare = rmain2;
+      } else if (fullBrothers >= 1 && sister >= 1) {
+        fullBrotherShare =
+            ((rmain2 / ((2 * fullBrothers) + sister))) * fullBrothers;
+      }
+    }
+    int paternalMaternalBrothers = pateralSister + paternalBrothers;
+
+// Calculate paternal sister share
+    if (fatherExists == 0 &&
+        sons == 0 &&
+        daughters == 0 &&
+        sister == 0 &&
+        fullBrothers == 0) {
+      if (paternalBrothers == 0 &&
+          pateralSister == 1 &&
+          fullBrothers == 0 &&
+          sister == 0) {
+        paternalSisterShare = 0.5 * double.parse(_totalAmountController.text);
+        remain -= paternalSisterShare;
+      } else if (paternalBrothers == 0 &&
+          pateralSister > 1 &&
+          sister == 0 &&
+          fullBrothers == 0) {
+        paternalSisterShare =
+            ((2 / 3) * double.parse(_totalAmountController.text));
+        remain -= paternalSisterShare;
+      } else if (paternalBrothers >= 1 &&
+          pateralSister >= 1 &&
+          sister == 0 &&
+          fullBrothers == 0) {
+        paternalSisterShare =
+            ((remain / ((2 * paternalBrothers) + pateralSister))) *
+                pateralSister;
+      }
+    }
+
+    // Calculate paternal brother share
+    if (fatherExists == 0 && sons == 0) {
+      if (paternalBrothers == 1 && pateralSister == 0) {
+        paternalBrotherShare = remain;
+      } else if (paternalBrothers > 1 && pateralSister == 0) {
+        paternalBrotherShare = remain / paternalBrothers;
+      } else if (paternalBrothers >= 1 && pateralSister >= 1) {
+        paternalBrotherShare =
+            ((remain / ((2 * paternalBrothers) + pateralSister))) *
+                paternalBrothers;
+      }
+    }
     // Create a map of inheritance values
     Map<String, dynamic> inheritanceValues = {
       'heirs': [
@@ -203,7 +284,11 @@ class _InheritanceCalculatorScreenState
         {'name': 'Father Share', 'share': fatherShare},
         {'name': 'Mother Share', 'share': motherShare},
         {'name': 'Full Brother Share', 'share': fullBrotherShare},
+        {'name': 'Paternal Brother Share', 'share': paternalBrotherShare},
+        {'name': 'Maternal Brother Share', 'share': maternalBrotherShare},
         {'name': 'Full Sister Share', 'share': fullSisterShare},
+        {'name': 'Paternal Sister Share', 'share': paternalSisterShare},
+        {'name': 'Maternal Sister Share', 'share': maternalSisterShare},
       ],
     };
     print("=======================" + inheritanceValues.toString());
