@@ -25,7 +25,7 @@ class InheritanceCalculatorScreen extends StatefulWidget {
 
 int _fatherStatusValue = 1;
 int _motherStatusValue = 1;
-int _husbanStatusValue = 0;
+int _husbanStatusValue = 1;
 int _wifeStatusValue = 0;
 
 class _InheritanceCalculatorScreenState
@@ -90,16 +90,16 @@ class _InheritanceCalculatorScreenState
   }
 
   void _calculateInheritance() {
-    if (_husbanStatusValue == 1) {
-      _husbanStatusValue = 0;
-    } else {
-      _husbanStatusValue = 1;
-    }
-    if (_wifeStatusValue == 1) {
-      _wifeStatusValue = 0;
-    } else {
-      _wifeStatusValue = 1;
-    }
+    // if (_husbanStatusValue == 1) {
+    //   _husbanStatusValue = 0;
+    // } else {
+    //   _husbanStatusValue = 1;
+    // }
+    // if (_wifeStatusValue == 1) {
+    //   _wifeStatusValue = 0;
+    // } else {
+    //   _wifeStatusValue = 1;
+    // }
     print("///////////////////////////  " + _husbanStatusValue.toString());
     var fatherExists = _fatherStatusValue;
     var motherExists = _motherStatusValue;
@@ -127,55 +127,49 @@ class _InheritanceCalculatorScreenState
     double paternalSisterShare = 0.0;
     double maternalSisterShare = 0.0;
     double remain = 0.0;
-
+    var lacag = double.parse(_totalAmountController.text) -
+        double.parse(_willAmountController.text) -
+        double.parse(_loanAmountController.text);
     // Calculate husband's share
     if (sons == 0 && daughters == 0) {
-      husbandShare = 0.5 * husband * double.parse(_totalAmountController.text);
+      husbandShare = 0.5 * husband * lacag;
     } else {
-      husbandShare = 0.25 * husband * double.parse(_totalAmountController.text);
+      husbandShare = 0.25 * husband * lacag;
     }
     // Calculate wife's share
     if (sons == 0 && daughters == 0) {
-      wifeShare = 0.25 * wife * double.parse(_totalAmountController.text);
+      wifeShare = 0.25 * wife * lacag;
     } else {
-      wifeShare = 0.125 * wife * double.parse(_totalAmountController.text);
+      wifeShare = 0.125 * wife * lacag;
     }
 
 // Calculate father's share
     if (sons == 0 && daughters == 0 && (husband == 0 || wife == 0)) {
       if (motherExists == 1) {
-        fatherShare = (double.parse(_totalAmountController.text) -
-                (double.parse(_totalAmountController.text) * 1 / 3)) *
-            fatherExists;
+        fatherShare = (lacag - (lacag * 1 / 3)) * fatherExists;
       } else {
-        fatherShare = double.parse(_totalAmountController.text) * fatherExists;
+        fatherShare = lacag * fatherExists;
       }
     } else {
-      fatherShare =
-          double.parse(_totalAmountController.text) * (1 / 6) * fatherExists;
+      fatherShare = lacag * (1 / 6) * fatherExists;
     }
 
     // Calculate mother's share
 
     if ((sons > 0 || daughters > 0) || fullBrothers > 1) {
-      motherShare =
-          motherExists * double.parse(_totalAmountController.text) * (1 / 6);
+      motherShare = motherExists * lacag * (1 / 6);
     } else {
-      motherShare =
-          motherExists * double.parse(_totalAmountController.text) * (1 / 3);
+      motherShare = motherExists * lacag * (1 / 3);
     }
 // Calculate maternal  share
     if ((sons == 0 && daughters == 0) && fatherExists == 0) {
       if (maternalBrothers == 1 && MaternalSister == 0) {
-        maternalBrotherShare =
-            ((1 / 6) * double.parse(_totalAmountController.text));
+        maternalBrotherShare = ((1 / 6) * lacag);
       } else if (maternalBrothers == 0 && MaternalSister == 1) {
-        maternalSisterShare =
-            ((1 / 6) * double.parse(_totalAmountController.text));
+        maternalSisterShare = ((1 / 6) * lacag);
       } else {
         var maternalchilds = MaternalSister + maternalBrothers;
-        double qeeb = ((1 / 3) * double.parse(_totalAmountController.text)) /
-            maternalchilds;
+        double qeeb = ((1 / 3) * lacag) / maternalchilds;
         maternalSisterShare = qeeb * MaternalSister;
         maternalBrotherShare = qeeb * maternalBrothers;
       }
@@ -187,7 +181,7 @@ class _InheritanceCalculatorScreenState
         wifeShare +
         maternalBrotherShare +
         maternalSisterShare;
-    remain = double.parse(_totalAmountController.text) - total;
+    remain = lacag - total;
     int sondaughtershares = (2 * sons) + daughters;
 // Calculate son's share
     if (sons > 0 && daughters == 0) {
@@ -200,9 +194,9 @@ class _InheritanceCalculatorScreenState
 
     // Calculate daughter's share
     if (daughters == 1 && sons == 0) {
-      daughterShare = 0.5 * double.parse(_totalAmountController.text);
+      daughterShare = 0.5 * lacag;
     } else if (daughters > 1 && sons == 0) {
-      daughterShare = (2 / 3) * double.parse(_totalAmountController.text);
+      daughterShare = (2 / 3) * lacag;
     } else if (daughters >= 1 && sons >= 1) {
       daughterShare = (remain / sondaughtershares) * daughters;
     }
@@ -210,10 +204,10 @@ class _InheritanceCalculatorScreenState
     // Calculate full sister share
     if (fatherExists == 0 && sons == 0 && daughters == 0) {
       if (fullBrothers == 0 && sister == 1) {
-        fullSisterShare = 0.5 * double.parse(_totalAmountController.text);
+        fullSisterShare = 0.5 * lacag;
         rmain2 -= fullSisterShare;
       } else if (fullBrothers == 0 && sister > 1) {
-        fullSisterShare = ((2 / 3) * double.parse(_totalAmountController.text));
+        fullSisterShare = ((2 / 3) * lacag);
         rmain2 -= fullSisterShare;
       } else if (fullBrothers >= 1 && sister >= 1) {
         fullSisterShare = ((rmain2 / ((2 * fullBrothers) + sister))) * sister;
@@ -243,14 +237,13 @@ class _InheritanceCalculatorScreenState
           pateralSister == 1 &&
           fullBrothers == 0 &&
           sister == 0) {
-        paternalSisterShare = 0.5 * double.parse(_totalAmountController.text);
+        paternalSisterShare = 0.5 * lacag;
         remain -= paternalSisterShare;
       } else if (paternalBrothers == 0 &&
           pateralSister > 1 &&
           sister == 0 &&
           fullBrothers == 0) {
-        paternalSisterShare =
-            ((2 / 3) * double.parse(_totalAmountController.text));
+        paternalSisterShare = ((2 / 3) * lacag);
         remain -= paternalSisterShare;
       } else if (paternalBrothers >= 1 &&
           pateralSister >= 1 &&
@@ -464,7 +457,9 @@ class Page2 extends StatelessWidget {
     required this.loanAmountController,
     required this.willAmountController,
   });
-
+  late var s1_3 = ((double.parse(totalAmountController.text) -
+          double.parse(loanAmountController.text)) *
+      (1 / 3));
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -519,8 +514,10 @@ class Page2 extends StatelessWidget {
                     borderSide: BorderSide(color: Colors.red),
                   )),
               validator: (value) {
-                if (value == null || value.isEmpty) {
+                if ((value == null || value.isEmpty)) {
                   return 'Please enter the will amount';
+                } else if (!(s1_3 >= double.parse(willAmountController.text))) {
+                  return 'Please will not more one third';
                 }
                 return null;
               },
@@ -632,45 +629,66 @@ class _Page3State extends State<Page3> {
               ),
               SizedBox(height: 10),
               Text(
-                "who is died",
+                "Is husban Live",
                 style: TextStyle(
                   fontSize: 18,
                 ),
               ),
               ListTile(
-                title: const Text('Husban'),
+                title: const Text('Yes'),
                 leading: Radio(
                   // Change the generic type argument to int
                   value: 1,
                   groupValue: _husbanStatusValue,
                   onChanged: (value) {
                     setState(() {
-                      if (value == 1) {
-                        _husbanStatusValue = 1;
-                        _wifeStatusValue = 0;
-                      } else {
-                        _husbanStatusValue = 0;
-                        _wifeStatusValue = 1;
-                      }
+                      _husbanStatusValue = value!;
                     });
                   },
                 ),
               ),
               ListTile(
-                title: const Text('Wife'),
+                title: const Text('No'),
                 leading: Radio(
                   // Change the generic type argument to int
                   value: 0,
                   groupValue: _husbanStatusValue,
                   onChanged: (value) {
                     setState(() {
-                      if (value == 0) {
-                        _husbanStatusValue = 0;
-                        _wifeStatusValue = 1;
-                      } else {
-                        _husbanStatusValue = 1;
-                        _wifeStatusValue = 0;
-                      }
+                      _husbanStatusValue = value!;
+                    });
+                  },
+                ),
+              ),
+              SizedBox(height: 10),
+              Text(
+                "Is wife Live",
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
+              ListTile(
+                title: const Text('Yes'),
+                leading: Radio(
+                  // Change the generic type argument to int
+                  value: 1,
+                  groupValue: _wifeStatusValue,
+                  onChanged: (value) {
+                    setState(() {
+                      _wifeStatusValue = value!;
+                    });
+                  },
+                ),
+              ),
+              ListTile(
+                title: const Text('No'),
+                leading: Radio(
+                  // Change the generic type argument to int
+                  value: 0,
+                  groupValue: _wifeStatusValue,
+                  onChanged: (value) {
+                    setState(() {
+                      _wifeStatusValue = value!;
                     });
                   },
                 ),
