@@ -284,7 +284,9 @@ class _InheritanceCalculatorScreenState
         {'name': 'Maternal Sister Share', 'share': maternalSisterShare},
       ],
     };
-    print("=======================" + inheritanceValues.toString());
+
+    inheritanceValues['heirs'].removeWhere((heir) => heir['share'] == 0);
+    print("=======================" + jsonEncode(inheritanceValues).toString());
     // Navigate to the InheritanceResultScreen and pass the inheritance values
     Navigator.push(
       context,
