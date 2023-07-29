@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dhaxlayaal.dart';
+import 'd.dart';
 import 'register.dart';
 
 class MyLogin extends StatefulWidget {
@@ -27,9 +27,7 @@ class _MyLoginState extends State<MyLogin> {
         final data = json.decode(response.body);
         if (data['status'] == "success") {
           Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => Scaffold(body: null
-            // dhaxlayaal()
-            ),
+            builder: (context) => Scaffold(body: MyApp()),
           ));
         } else {
           final snack = SnackBar(content: Text('Invalid username or password'));
